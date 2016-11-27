@@ -9,6 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/vaadin-upload/vaadin-upload.html">
 <link rel="import" href="shared-styles.html">
 
@@ -20,17 +21,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         padding: 10px;
       }
+
+      .icon-header {
+        --iron-icon-width: 2em;
+        --iron-icon-height: 2em;
+        --iron-icon-fill-color: var(--app-secondary-color);
+      }
     </style>
 
     <div class="card">
-      <div class="circle">1</div>
-      <h1>View One</h1>
-      <p>Ut labores minimum atomorum pro. Laudem tibique ut has.
-      <p>Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea.Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea.Cu mei vide viris gloriatur, at populo eripuit sit.</p>
+      <h1>
+        <iron-icon icon="icons:file-upload" class="icon-header"></iron-icon>
+        Upload transactions
+      </h1>
+      <p>Please download your transactions from your bank and upload them here.</p>
     </div>
 
     <div class="card">
-      <vaadin-upload on-upload-before="uploadStarting" />
+      <vaadin-upload on-upload-before="uploadStarting"></vaadin-upload>
       <!-- on-upload-abort, on-upload-error, on-upload-retry -->
     </div>
   </template>
@@ -38,22 +46,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script>
     Polymer({
       is: 'upload-view',
-      uploadStarting: function(event) {
-        var upload = event.target;
-        event.preventDefault();
 
-        console.log("Upload starting: " + event.detail.file.name);
+      _read: function(uploadComponent, file) {
+        console.log("Upload starting: " + file.name);
 
+        file.set = function(property, value) {
+          // HINT: the array models a path, cf. https://www.polymer-project.org/1.0/docs/devguide/model-data#set-path
+          uploadComponent.set(['files', uploadComponent.files.indexOf(this), property], value);
+        }
+
+        // cf. https://developer.mozilla.org/de/docs/Web/API/FileReader
         var reader = new FileReader();
-        reader.onload = function(e) {
-          // reader.result
-          console.log("Upload done, got " + reader.result.length + " characters");
-          upload.set(['files', upload.files.indexOf(event.detail.file), 'progress'], 100);
-          upload.set(['files', upload.files.indexOf(event.detail.file), 'complete'], true);
-        };
+        reader.file = file;
+        reader.onload = this._readerSuccess;
         //reader.onerror, reader.onabort, reader.onloadstart, reader.onprogress
+        reader.readAsText(file);
+      },
+      _readerSuccess: function(e) {
+        var reader = e.target;
+        var file = reader.file;
+        console.log("Upload done, got " + reader.result.length + " characters");
+        file.set('progress', 100);
+        file.set('complete', true);
+      },
 
-        reader.readAsDataURL(event.detail.file);
+      uploadStarting: function(event) {
+        event.preventDefault();
+        this._read(event.target, event.detail.file);
       }
     });
   </script>
