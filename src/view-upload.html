@@ -9,9 +9,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/vaadin-upload/vaadin-upload.html">
 <link rel="import" href="shared-styles.html">
 
-<dom-module id="my-view1">
+<dom-module id="upload-view">
   <template>
     <style include="shared-styles">
       :host {
@@ -27,11 +28,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <p>Ut labores minimum atomorum pro. Laudem tibique ut has.
       <p>Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea.Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea.Cu mei vide viris gloriatur, at populo eripuit sit.</p>
     </div>
+
+    <div class="card">
+      <vaadin-upload on-upload-before="uploadStarting" />
+      <!-- on-upload-abort, on-upload-error, on-upload-retry -->
+    </div>
   </template>
 
   <script>
     Polymer({
-      is: 'my-view1'
+      is: 'upload-view',
+      uploadStarting: function(event) {
+        var upload = event.target;
+        event.preventDefault();
+
+        console.log("Upload starting: " + event.detail.file.name);
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          // reader.result
+          console.log("Upload done, got " + reader.result.length + " characters");
+          upload.set(['files', upload.files.indexOf(event.detail.file), 'progress'], 100);
+          upload.set(['files', upload.files.indexOf(event.detail.file), 'complete'], true);
+        };
+        //reader.onerror, reader.onabort, reader.onloadstart, reader.onprogress
+
+        reader.readAsDataURL(event.detail.file);
+      }
     });
   </script>
 </dom-module>
