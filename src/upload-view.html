@@ -41,7 +41,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </div>
 
     <div class="card">
-      <vaadin-upload on-upload-before="uploadStarting"></vaadin-upload>
+      <vaadin-upload on-upload-before="handleUploadStarting"></vaadin-upload>
       <!-- on-upload-abort, on-upload-error, on-upload-retry -->
     </div>
   </template>
@@ -61,11 +61,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // cf. https://developer.mozilla.org/de/docs/Web/API/FileReader
         var reader = new FileReader();
         reader.file = file;
-        reader.onload = this._readerSuccess.bind(this);
+        reader.onload = this._handleReaderSuccess.bind(this);
         //reader.onerror, reader.onabort, reader.onloadstart, reader.onprogress
         reader.readAsText(file);
       },
-      _readerSuccess: function(e) {
+
+      _handleReaderSuccess: function(e) {
         var reader = e.target;
         var file = reader.file;
 
@@ -75,7 +76,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.parseService.parseTransactions(reader.result);
       },
 
-      uploadStarting: function(event) {
+      handleUploadStarting: function(event) {
         event.preventDefault();
         this._read(event.target, event.detail.file);
       }

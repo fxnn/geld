@@ -1,10 +1,21 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
 <dom-module id="parse-service">
 
     <script>
         Polymer({
             is: 'parse-service',
+
             parseTransactions: function(data) {
                 console.log("Parsing " + data.length + " bytes ...");
+
+                var _digit= /[0-9]/;
+                var _alpha= /[A-Z]/;
+                var _alphaDigit= /[A-Z0-9]/;
+                var _anyChar= /[a-zA-Z0-9/=:().,'+{}-]/;
+                var _fieldName= new RegExp(':' + _alphaDigit + '+:');
+
+                var messages = [];
             }
         });
     </script>
