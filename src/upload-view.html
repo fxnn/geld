@@ -12,6 +12,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/vaadin-upload/vaadin-upload.html">
 <link rel="import" href="shared-styles.html">
+<link rel="import" href="parse-service.html">
 
 <dom-module id="upload-view">
   <template>
@@ -28,6 +29,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         --iron-icon-fill-color: var(--app-secondary-color);
       }
     </style>
+
+    <parse-service id="parseService"></parse-service>
 
     <div class="card">
       <h1>
@@ -58,16 +61,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // cf. https://developer.mozilla.org/de/docs/Web/API/FileReader
         var reader = new FileReader();
         reader.file = file;
-        reader.onload = this._readerSuccess;
+        reader.onload = this._readerSuccess.bind(this);
         //reader.onerror, reader.onabort, reader.onloadstart, reader.onprogress
         reader.readAsText(file);
       },
       _readerSuccess: function(e) {
         var reader = e.target;
         var file = reader.file;
-        console.log("Upload done, got " + reader.result.length + " characters");
+
         file.set('progress', 100);
         file.set('complete', true);
+
+        this.$.parseService.parseTransactions(reader.result);
       },
 
       uploadStarting: function(event) {
