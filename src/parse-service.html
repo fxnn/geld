@@ -24,35 +24,55 @@
                 return r;
             },
 
-            _build: function(name, rule) {
-                return Parser.Operators.process(rule, function(a) {
-                    return {
-                        is: name,
-                        data: a
-                    };
-                });
+            _newGrammar: function(o) {
+                var g = {}; // grammar
+
+                g.$token = function(name, regex) {
+                    this[name] = o.stoken(regex);
+                };
+                g.$rule = function(name, rule) {
+                    this[name] = o.process(rule, function(data) {
+                        var result= {
+                            is: name,
+                            data: data
+                        };
+                        if (name == "tag") {
+                            result.number = function () {
+                                return this.data[0];
+                            };
+                        }
+                        if (name == "fieldname") {
+                            result.tag = function () {
+                                return this.data[2];
+                            };
+                        }
+                        return result;
+                    });
+                };
+
+                return g;
             },
 
             _tokens: function(o) {
                 var o = Parser.Operators;
-                var g = {}; // grammar
+                var g = this._newGrammar(o);
 
                 // basic tokens
-                g.lbrace = o.stoken("{");
-                g.rbrace = o.stoken("}");
-                g.colon = o.stoken(":");
-                g.dash = o.stoken("-");
-                g.number = o.stoken(/[0-9]+/);
-                g.alpha = o.stoken(/[A-Z]+/);
-                g.alphanum = o.stoken(/[A-Z0-9]+/);
-                g.anychar = o.stoken(/[a-zA-Z0-9/?:().,'+\r\n -]+/);
-                g.float = o.stoken(/[0-9]+,[0-9]+/);
-                g.newline = o.stoken("\r\n");
+                g.$token("lbrace", "{");
+                g.$token("rbrace", "}");
+                g.$token("colon", ":");
+                g.$token("dash", "-");
+                g.$token("number", /[0-9]+/);
+                g.$token("alpha", /[A-Z]+/);
+                g.$token("alphanum", /[A-Z0-9]+/);
+                g.$token("anychar", /[a-zA-Z0-9/?:().,'+\r\n -]+/);
+                g.$token("float", /[0-9]+,[0-9]+/);
+                g.$token("newline", "\r\n");
 
                 // basic rules
-                g.tag = this._build("tag", o.each(g.number, g.colon));
-                g.fieldname = this._build("fieldname", o.each(g.newline, g.colon, g.tag));
-                g.end = o.each(g.newline, g.dash);
+                g.$rule("tag", o.each(g.number, g.colon));
+                g.$rule("fieldname", o.each(g.newline, g.colon, g.tag));
+                g.$rule("end", o.each(g.newline, g.dash));
 
                 return g;
             },
@@ -60,15 +80,17 @@
             _grammar: function(o) {
                 var g = this._tokens(o);
 
-                g.headerblock = o.between(g.lbrace, o.each(g.tag, g.aplhanum), g.rbrace);
-                g.header = o.optional(o.many(g.headerblock));
+                g.$rule("headerblock", o.between(g.lbrace, o.each(g.tag, g.aplhanum), g.rbrace));
+                // NOTE, that a header might be empty
+                g.$rule("header", o.many(g.headerblock));
 
-                g.field = o.each(g.fieldname, o.until(o.any(g.fieldname, g.end)));
-                g.fields = o.many(g.field);
-                g.fieldsInBraces = o.between(g.lbrace, o.each(g.tag, g.fields), g.rbrace);
-                g.body = o.any(g.fields, g.fieldsInBraces);
+                g.$rule("field", o.each(g.fieldname, o.until(o.any(g.fieldname, g.end))));
+                g.$rule("fields", o.many(g.field));
+                g.$rule("fieldsInBraces", o.between(g.lbrace, o.each(g.tag, g.fields), g.rbrace));
+                // NOTE, that I found examples with and without braces
+                g.$rule("body", o.any(g.fields, g.fieldsInBraces));
 
-                g.file = o.each(g.header, g.body);
+                g.$rule("file", o.each(g.header, g.body));
 
                 return g;
             },

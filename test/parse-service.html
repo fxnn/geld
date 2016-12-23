@@ -123,8 +123,26 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
           parseService = Polymer.dom(home.root).querySelector('#parseService');
           g = parseService._grammar(Parser.Operators);
           assert.sameParseResult = function(actual, expected) {
-            // HINT: assert sometimes just displays Array(2) instead of array contents
-            assert.sameDeepMembers(actual, expected, JSON.stringify(actual));
+            if (actual == null) {
+              assert.equal(actual, expected);
+            } else if (actual instanceof Array) {
+              if (!(expected instanceof Array)) {
+                assert.fail(JSON.stringify(actual), JSON.stringify(expected),
+                    "actual is an array, but wasn't expected to be");
+              }
+              if (actual.length != expected.length) {
+                assert.fail(JSON.stringify(actual), JSON.stringify(expected),
+                    "actual array has different length than expected array");
+              }
+              for (var i = 0; i < actual.length; i++) {
+                assert.sameParseResult(actual[i], expected[i]);
+              }
+            } else if (Object.keys(actual).indexOf("is") >= 0) {
+              assert.equal(actual.is, expected.is, "actual is something different than expected");
+              assert.sameParseResult(actual.data, expected.data);
+            } else {
+              assert.equal(actual, expected);
+            }
           };
         });
 
@@ -144,6 +162,7 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
                   data:["42", ":"]
                 }]
               }, ""]);
+          assert.equal(g.fieldname("\r\n:42:")[0].tag().number(), "42");
         });
 
         test('example1 correct', function() {
