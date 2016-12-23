@@ -1,21 +1,83 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
+<script>var module = {};</script>
+<script src="../bower_components/parser-generator/parser-generator.js"></script>
+<script>var Parser = module.exports;</script>
+
 <dom-module id="parse-service">
 
     <script>
         Polymer({
             is: 'parse-service',
 
+            // flatten(a) flattens an array a of arrays
+            // http://stackoverflow.com/a/16953805
+            _flatten: function(a, r){
+                if(!r){ r = []}
+                for(var i=0; i<a.length; i++){
+                    if(a[i].constructor == Array){
+                        flattenArrayOfArrays(a[i], r);
+                    }else{
+                        r.push(a[i]);
+                    }
+                }
+                return r;
+            },
+
+            _build: function(name, rule) {
+                return Parser.Operators.process(rule, function(a) {
+                    return {
+                        is: name,
+                        data: a
+                    };
+                });
+            },
+
+            _tokens: function(o) {
+                var o = Parser.Operators;
+                var g = {}; // grammar
+
+                // basic tokens
+                g.lbrace = o.stoken("{");
+                g.rbrace = o.stoken("}");
+                g.colon = o.stoken(":");
+                g.dash = o.stoken("-");
+                g.number = o.stoken(/[0-9]+/);
+                g.alpha = o.stoken(/[A-Z]+/);
+                g.alphanum = o.stoken(/[A-Z0-9]+/);
+                g.anychar = o.stoken(/[a-zA-Z0-9/?:().,'+\r\n -]+/);
+                g.float = o.stoken(/[0-9]+,[0-9]+/);
+                g.newline = o.stoken("\r\n");
+
+                // basic rules
+                g.tag = this._build("tag", o.each(g.number, g.colon));
+                g.fieldname = this._build("fieldname", o.each(g.newline, g.colon, g.tag));
+                g.end = o.each(g.newline, g.dash);
+
+                return g;
+            },
+
+            _grammar: function(o) {
+                var g = this._tokens(o);
+
+                g.headerblock = o.between(g.lbrace, o.each(g.tag, g.aplhanum), g.rbrace);
+                g.header = o.optional(o.many(g.headerblock));
+
+                g.field = o.each(g.fieldname, o.until(o.any(g.fieldname, g.end)));
+                g.fields = o.many(g.field);
+                g.fieldsInBraces = o.between(g.lbrace, o.each(g.tag, g.fields), g.rbrace);
+                g.body = o.any(g.fields, g.fieldsInBraces);
+
+                g.file = o.each(g.header, g.body);
+
+                return g;
+            },
+
             parseTransactions: function(data) {
                 console.log("Parsing " + data.length + " bytes ...");
 
-                var _digit= /[0-9]/;
-                var _alpha= /[A-Z]/;
-                var _alphaDigit= /[A-Z0-9]/;
-                var _anyChar= /[a-zA-Z0-9/=:().,'+{}-]/;
-                var _fieldName= new RegExp(':' + _alphaDigit + '+:');
-
-                var messages = [];
+                var parse = this._grammar(Parser.Operators);
+                return parse.file(data);
             }
         });
     </script>

@@ -115,19 +115,40 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
     <script>
       suite('<parse-service>', function() {
         var home;
+        var parseService;
+        var g;
 
         setup(function() {
           home = fixture('parse-service-fixture');
+          parseService = Polymer.dom(home.root).querySelector('#parseService');
+          g = parseService._grammar(Parser.Operators);
+          assert.sameParseResult = function(actual, expected) {
+            // HINT: assert sometimes just displays Array(2) instead of array contents
+            assert.sameDeepMembers(actual, expected, JSON.stringify(actual));
+          };
         });
 
-        test('parseService callable', function() {
-          var parseService = Polymer.dom(home.root).querySelector('#parseService');
-          parseService.parseTransactions('abc');
+        test('basic tokens correct', function() {
+          assert.sameParseResult(g.number("42"), ["42", ""]);
+          assert.sameParseResult(g.anychar("(42:answers everything)"),
+              ["(42:answers everything)", ""]);
+        });
+
+        test('basic rules correct', function() {
+          assert.sameParseResult(g.tag("42:"),
+              [{is:"tag", data:["42", ":"]}, ""]);
+          assert.sameParseResult(g.fieldname("\r\n:42:"), [{
+                is:"fieldname",
+                data:["\r\n", ":", {
+                  is:"tag",
+                  data:["42", ":"]
+                }]
+              }, ""]);
         });
 
         test('example1 correct', function() {
           var example1 = Polymer.dom(home.root).querySelector('#example-swift-mt940-domestic-1');
-          assert.ok(example1.innerHTML.startsWith("{1:F"));
+          assert.ok(parseService.parseTransactions(example1.innerHTML));
         });
       });
     </script>
