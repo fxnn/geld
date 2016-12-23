@@ -123,51 +123,143 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
           parseService = Polymer.dom(home.root).querySelector('#parseService');
           g = parseService._grammar(Parser.Operators);
           assert.sameParseResult = function(actual, expected) {
-            if (actual == null) {
-              assert.equal(actual, expected);
-            } else if (actual instanceof Array) {
-              if (!(expected instanceof Array)) {
-                assert.fail(JSON.stringify(actual), JSON.stringify(expected),
-                    "actual is an array, but wasn't expected to be");
+            try {
+              if (actual == null) {
+                assert.equal(actual, expected);
+              } else if (actual instanceof Array) {
+                if (!(expected instanceof Array)) {
+                  throw new Error("actual is an array, but wasn't expected to be");
+                }
+                if (actual.length != expected.length) {
+                  throw new Error("actual array has different length than expected array");
+                }
+                for (var i = 0; i < actual.length; i++) {
+                  assert.sameParseResult(actual[i], expected[i]);
+                }
+              } else if (Object.keys(actual).indexOf("is") >= 0) {
+                assert.equal(actual.is, expected.is);
+                assert.sameParseResult(actual.data, expected.data);
+              } else {
+                assert.equal(actual, expected);
               }
-              if (actual.length != expected.length) {
-                assert.fail(JSON.stringify(actual), JSON.stringify(expected),
-                    "actual array has different length than expected array");
-              }
-              for (var i = 0; i < actual.length; i++) {
-                assert.sameParseResult(actual[i], expected[i]);
-              }
-            } else if (Object.keys(actual).indexOf("is") >= 0) {
-              assert.equal(actual.is, expected.is, "actual is something different than expected");
-              assert.sameParseResult(actual.data, expected.data);
-            } else {
-              assert.equal(actual, expected);
+            } catch (ex) {
+              throw new Error(ex.stack
+                  + "\n\nExpected the actual parse result:\n  "
+                  + JSON.stringify(actual) + "\nto be:\n  "
+                  + JSON.stringify(expected) + "\nbut got the error above.");
             }
           };
         });
 
         test('basic tokens correct', function() {
-          assert.sameParseResult(g.number("42"), ["42", ""]);
+          assert.sameParseResult(g.number("42xxx"), ["42", "xxx"]);
+          assert.sameParseResult(g.lbrace("{abc"), ["{", "abc"]);
           assert.sameParseResult(g.anychar("(42:answers everything)"),
               ["(42:answers everything)", ""]);
         });
 
-        test('basic rules correct', function() {
+        test('parse tag', function() {
           assert.sameParseResult(g.tag("42:"),
               [{is:"tag", data:["42", ":"]}, ""]);
-          assert.sameParseResult(g.fieldname("\r\n:42:"), [{
+        });
+
+        test('parse fieldname', function() {
+          assert.sameParseResult(g.fieldname("\n:42:"), [{
                 is:"fieldname",
-                data:["\r\n", ":", {
+                data:["\n", ":", {
                   is:"tag",
                   data:["42", ":"]
                 }]
               }, ""]);
-          assert.equal(g.fieldname("\r\n:42:")[0].tag().number(), "42");
+          assert.equal(g.fieldname("\n:42:")[0].tag(), "42");
+        });
+
+        test('parse headercontent', function() {
+          assert.sameParseResult(g.headercontent("1:F01BPHKPLPKXXX0000000000"), [{
+                is: "headercontent",
+                data: [
+                  {is: "tag", data: ["1", ":"]},
+                  "F01BPHKPLPKXXX0000000000"
+                ]
+          }, ""]);
+        });
+
+        test('parse headerblock', function() {
+          var result = g.headerblock("{1:F01BPHKPLPKXXX0000000000}")[0];
+          assert.equal(result.tag(), "1");
+          assert.equal(result.headerdata(), "F01BPHKPLPKXXX0000000000");
+        });
+
+        test('parse header', function() {
+          assert.sameParseResult(g.header("{1:F01BPHKPLPKXXX0000000000}"), [{
+              is: "header",
+              data: [{
+                is: "headerblock",
+                data: [
+                  {is: "tag", data: ["1", ":"]},
+                  "F01BPHKPLPKXXX0000000000"
+                ]
+              }]
+          }, ""]);
+        });
+
+        test('parse field', function() {
+          var result = g.field(
+                "\n:86:031?00Wyplata-(dysp/przel)?2069101012700004592221000000?2115619?\n"
+              + "24Wplata na organ podatkowy?25Typ identyfikatora:N?26Zawartosc I\n"
+              + "D:6792496639?27Okres:03M09?27Symbol formularza:PIT4?28Opis:ZAPL.\n"
+              + "POD. DAFIK?3010101270?310004592221000000?32Urzad Skarbowy Krakow\n"
+              + "tar?33e Miasto Krakow?38PL69101012700004592221000000")[0];
+          assert.equal(result.fieldname().tag(), "86");
+          assert.sameParseResult(result.fielddata(), 
+            "031?00Wyplata-(dysp/przel)?2069101012700004592221000000?2115619?" +
+            "24Wplata na organ podatkowy?25Typ identyfikatora:N?26Zawartosc I" +
+            "D:6792496639?27Okres:03M09?27Symbol formularza:PIT4?28Opis:ZAPL." +
+            "POD. DAFIK?3010101270?310004592221000000?32Urzad Skarbowy Krakow"+ 
+            "tar?33e Miasto Krakow?38PL69101012700004592221000000");
+        });
+
+        test('fields', function() {
+          var result = g.fields("\n" +
+            ":60F:C031209PLN95,03\n" +
+            ":61:0312091209C20000,FBARNONREF//1010001272972001\n" +
+            "Payment of funds to own account\n" +
+            ":86:082?00Wplata wlasna?2115616?24Rach.wplacajac. 101000"
+          );
+
+          assert.equal(result[1], "");
+          assert.equal(result[0].fieldCount(), 3);
+
+          var fields = result[0].data;
+          assert.equal(fields[0].fieldname().tag(), "60F");
+          assert.equal(fields[0].fielddata(), "C031209PLN95,03");
+          assert.equal(fields[1].fieldname().tag(), "61");
+          assert.equal(fields[1].fielddata(), "0312091209C20000,FBARNONREF//1010001272972001Payment of funds to own account");
+          assert.equal(fields[2].fieldname().tag(), "86");
+          assert.equal(fields[2].fielddata(), "082?00Wplata wlasna?2115616?24Rach.wplacajac. 101000");
+        });
+
+        test('fieldsInBraces', function() {
+          var result = g.fieldsInBraces("{4:\n" +
+            ":20: NETMEXID\n" + 
+            "-}");
+          assert.equal(result[1], "");
+          assert.equal(result[0].is, "fieldsInBraces");
+          var fields = result[0].data[2];
+          assert.equal(fields.is, "fields");
+          assert.equal(fields.fieldCount(), 1);
         });
 
         test('example1 correct', function() {
           var example1 = Polymer.dom(home.root).querySelector('#example-swift-mt940-domestic-1');
-          assert.ok(parseService.parseTransactions(example1.innerHTML));
+          var parsed = parseService.parseTransactions(example1.innerHTML);
+          console.log(parsed);
+
+          assert.equal(parsed.is, "file");
+          assert.equal(parsed.body().is, "body");          
+          assert.equal(parsed.body().fields().is, "fields");
+          var fields = parsed.body().fields();
+          assert.equal(fields.fieldCount(), 11);
         });
       });
     </script>

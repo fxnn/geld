@@ -12,23 +12,10 @@
         Polymer({
             is: 'parse-service',
 
-            // flatten(a) flattens an array a of arrays
-            // http://stackoverflow.com/a/16953805
-            _flatten: function(a, r){
-                if(!r){ r = []}
-                for(var i=0; i<a.length; i++){
-                    if(a[i].constructor == Array){
-                        flattenArrayOfArrays(a[i], r);
-                    }else{
-                        r.push(a[i]);
-                    }
-                }
-                return r;
-            },
 
             _tokens: function(o) {
                 var o = Parser.Operators;
-                var g = new Grammar(o);
+                var g = new Mt940Grammar(o);
 
                 // basic tokens
                 g.$token("lbrace", "{");
@@ -38,12 +25,12 @@
                 g.$token("number", /[0-9]+/);
                 g.$token("alpha", /[A-Z]+/);
                 g.$token("alphanum", /[A-Z0-9]+/);
-                g.$token("anychar", /[a-zA-Z0-9/?:().,'+\r\n -]+/);
+                g.$token("anychar", /[a-zA-Z0-9/?():.,'+ -]+/); // no newline
                 g.$token("float", /[0-9]+,[0-9]+/);
-                g.$token("newline", "\r\n");
+                g.$token("newline", "\n");
 
                 // basic rules
-                g.$rule("tag", o.each(g.number, g.colon));
+                g.$rule("tag", o.each(g.alphanum, g.colon));
                 g.$rule("fieldname", o.each(g.newline, g.colon, g.tag));
                 g.$rule("end", o.each(g.newline, g.dash));
 
@@ -53,13 +40,16 @@
             _grammar: function(o) {
                 var g = this._tokens(o);
 
-                g.$rule("headerblock", o.between(g.lbrace, o.each(g.tag, g.aplhanum), g.rbrace));
+                g.$rule("headercontent", o.each(g.tag, g.alphanum));
+                g.$inline("headerblock", o.between(g.lbrace, g.headercontent, g.rbrace));
                 // NOTE, that a header might be empty
                 g.$rule("header", o.many(g.headerblock));
 
-                g.$rule("field", o.each(g.fieldname, o.until(o.any(g.fieldname, g.end))));
+                g.$concat("fielddataline", o.each(o.optional(o.ignore(g.newline)), o.not(o.any(g.dash, g.colon)), o.min(1, g.anychar)));
+                g.$concat("fielddata", o.many(g.fielddataline));
+                g.$rule("field", o.each(g.fieldname, g.fielddata));
                 g.$rule("fields", o.many(g.field));
-                g.$rule("fieldsInBraces", o.between(g.lbrace, o.each(g.tag, g.fields), g.rbrace));
+                g.$rule("fieldsInBraces", o.each(g.lbrace, g.tag, g.fields, g.end, g.rbrace));
                 // NOTE, that I found examples with and without braces
                 g.$rule("body", o.any(g.fields, g.fieldsInBraces));
 
@@ -71,8 +61,13 @@
             parseTransactions: function(data) {
                 console.log("Parsing " + data.length + " bytes ...");
 
+                var normalized = data.replace(/\r\n/g, "\n");
                 var parse = this._grammar(Parser.Operators);
-                return parse.file(data);
+                var file = parse.file(normalized);
+                if (file[1] != "") {
+                    throw new Error("Couldn't be parsed completely, remaining: " + file[1]);
+                }
+                return file[0];
             }
         });
     </script>
