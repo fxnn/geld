@@ -4,6 +4,8 @@
 <script src="../bower_components/parser-generator/parser-generator.js"></script>
 <script>var Parser = module.exports;</script>
 
+<script src="parse-grammar.js"></script>
+
 <dom-module id="parse-service">
 
     <script>
@@ -24,38 +26,9 @@
                 return r;
             },
 
-            _newGrammar: function(o) {
-                var g = {}; // grammar
-
-                g.$token = function(name, regex) {
-                    this[name] = o.stoken(regex);
-                };
-                g.$rule = function(name, rule) {
-                    this[name] = o.process(rule, function(data) {
-                        var result= {
-                            is: name,
-                            data: data
-                        };
-                        if (name == "tag") {
-                            result.number = function () {
-                                return this.data[0];
-                            };
-                        }
-                        if (name == "fieldname") {
-                            result.tag = function () {
-                                return this.data[2];
-                            };
-                        }
-                        return result;
-                    });
-                };
-
-                return g;
-            },
-
             _tokens: function(o) {
                 var o = Parser.Operators;
-                var g = this._newGrammar(o);
+                var g = new Grammar(o);
 
                 // basic tokens
                 g.$token("lbrace", "{");
