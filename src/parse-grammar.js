@@ -143,14 +143,14 @@ var Mt940LogLevel = {
 };
 
 // o: Operators from parser-generator.js
-var Mt940Grammar = function (o, logLevel) {
-    this.logLevel = logLevel;
-    if (!this.logLevel) {
-        this.logLevel = Mt940LogLevel.None;
-    }
-    this.o = o;
-};
-Mt940Grammar.prototype = {
+var Mt940Grammar = augment.extend(Object, {
+    constructor: function (o, logLevel) {
+        this.o = o;
+        this.logLevel = logLevel;
+        if (!this.logLevel) {
+            this.logLevel = Mt940LogLevel.None;
+        }
+    },
     $token: function(name, regex) {
         this[name] = this.o.stoken(regex);
     },
@@ -210,4 +210,4 @@ Mt940Grammar.prototype = {
     _isLogParsingSteps: function() {
         return this.logLevel.logParsingSteps;
     },
-};
+});
