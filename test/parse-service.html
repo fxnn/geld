@@ -171,15 +171,15 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
         });
 
         test('parse fieldname', function() {
-          assert.sameParseResult(g.fieldname("\n:42:"), [
+          assert.sameParseResult(g.fieldName("\n:42:"), [
                 new Mt940Object.FieldName(["\n", ":",
                     new Mt940Object.Tag(["42", ":"])
                 ]), ""]);
-          assert.equal(g.fieldname("\n:42:")[0].tag().number(), "42");
+          assert.equal(g.fieldName("\n:42:")[0].tag().number(), "42");
         });
 
         test('parse headercontent', function() {
-          assert.sameParseResult(g.headercontent("1:F01BPHKPLPKXXX0000000000"), [
+          assert.sameParseResult(g.headerContent("1:F01BPHKPLPKXXX0000000000"), [
               new Mt940Object.HeaderContent([
                   new Mt940Object.Tag(["1", ":"]),
                   "F01BPHKPLPKXXX0000000000"
@@ -187,7 +187,7 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
         });
 
         test('parse headerblock', function() {
-          var result = g.headerblock("{1:F01BPHKPLPKXXX0000000000}")[0];
+          var result = g.headerBlock("{1:F01BPHKPLPKXXX0000000000}")[0];
           assert.equal(result.tagNumber(), "1");
           assert.equal(result.headerData(), "F01BPHKPLPKXXX0000000000");
         });

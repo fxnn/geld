@@ -37,20 +37,20 @@
                 var g = this._tokens(o);
 
                 g.$rule("tag", o.each(g.alphanum, g.colon));
-                g.$rule("fieldname", o.each(g.newline, g.colon, g.tag));
+                g.$rule("fieldName", o.each(g.newline, g.colon, g.tag));
                 g.$rule("endSuccessor", o.any(g.rbrace, g.newline));
                 // NOTE, that there is data where a dash starts a data line, so we need to be picky about whether it's the end or not
                 g.$rule("endContradiction", o.not(g.endSuccessor));
                 g.$rule("end", o.each(g.newline, g.dash, o.not(g.endContradiction)));
 
-                g.$rule("headercontent", o.each(g.tag, g.alphanum));
-                g.$rule("headerblock", o.between(g.lbrace, g.headercontent, g.rbrace));
+                g.$rule("headerContent", o.each(g.tag, g.alphanum));
+                g.$rule("headerBlock", o.between(g.lbrace, g.headerContent, g.rbrace));
                 // NOTE, that a header might be empty
-                g.$rule("header", o.many(g.headerblock));
+                g.$rule("header", o.many(g.headerBlock));
 
-                g.$rule("fielddataline", o.each(o.not(g.end), o.not(g.fieldname), o.ignore(o.optional(g.newline)), o.min(1, g.anychar)));
-                g.$rule("fielddata", o.many(g.fielddataline));
-                g.$rule("field", o.each(g.fieldname, g.fielddata));
+                g.$rule("fieldDataLine", o.each(o.not(g.end), o.not(g.fieldName), o.ignore(o.optional(g.newline)), o.min(1, g.anychar)));
+                g.$rule("fieldData", o.many(g.fieldDataLine));
+                g.$rule("field", o.each(g.fieldName, g.fieldData));
                 g.$rule("fields", o.many(g.field));
                 g.$rule("fieldsInBraces", o.each(g.lbrace, g.tag, g.fields, g.end, g.rbrace));
                 // HINT, that I found examples with and without braces

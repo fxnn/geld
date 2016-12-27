@@ -166,14 +166,14 @@ var Mt940Grammar = augment.extend(Object, {
         if (name == "file") return new Mt940Object.File(data);
         if (name == "body") return new Mt940Object.Body(data);
         if (name == "header") return new Mt940Object.Header(data);
-        if (name == "headerblock") return new Mt940Object.HeaderBlock(data);
-        if (name == "headercontent") return new Mt940Object.HeaderContent(data);
+        if (name == "headerBlock") return new Mt940Object.HeaderBlock(data);
+        if (name == "headerContent") return new Mt940Object.HeaderContent(data);
         if (name == "fields") return new Mt940Object.Fields(data);
         if (name == "fieldsInBraces") return new Mt940Object.FieldsInBraces(data);
         if (name == "field") return new Mt940Object.Field(data);
-        if (name == "fieldname") return new Mt940Object.FieldName(data);
-        if (name == "fielddata") return new Mt940Object.FieldData(data);
-        if (name == "fielddataline") return new Mt940Object.FieldDataLine(data);
+        if (name == "fieldName") return new Mt940Object.FieldName(data);
+        if (name == "fieldData") return new Mt940Object.FieldData(data);
+        if (name == "fieldDataLine") return new Mt940Object.FieldDataLine(data);
         if (name == "tag") return new Mt940Object.Tag(data);
         return new Mt940Object(data);
     },
