@@ -219,7 +219,7 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
             "tar?33e Miasto Krakow?38PL69101012700004592221000000");
         });
 
-        test('fields', function() {
+        test('parse fields', function() {
           var result = g.fields("\n" +
             ":60F:C031209PLN95,03\n" +
             ":61:0312091209C20000,FBARNONREF//1010001272972001\n" +
@@ -239,7 +239,7 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
           assert.equal(fields[2].fielddata(), "082?00Wplata wlasna?2115616?24Rach.wplacajac. 101000");
         });
 
-        test('fieldsInBraces', function() {
+        test('parse fieldsInBraces', function() {
           var result = g.fieldsInBraces("{4:\n" +
             ":20: NETMEXID\n" + 
             "-}");
@@ -248,18 +248,43 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
           var fields = result[0].data[2];
           assert.equal(fields.is, "fields");
           assert.equal(fields.fieldCount(), 1);
+          var field0 = fields.data[0];
+          assert.equal(field0.is, "field");
+          assert.equal(field0.fieldname().tag(), "20");
+          assert.equal(field0.fielddata(), " NETMEXID");
         });
 
-        test('example1 correct', function() {
+        test('parse example domestic 1', function() {
           var example1 = Polymer.dom(home.root).querySelector('#example-swift-mt940-domestic-1');
           var parsed = parseService.parseTransactions(example1.innerHTML);
-          console.log(parsed);
 
           assert.equal(parsed.is, "file");
           assert.equal(parsed.body().is, "body");          
           assert.equal(parsed.body().fields().is, "fields");
           var fields = parsed.body().fields();
           assert.equal(fields.fieldCount(), 11);
+        });
+
+        test('parse example domestic 2', function() {
+          var example1 = Polymer.dom(home.root).querySelector('#example-swift-mt940-domestic-2');
+          var parsed = parseService.parseTransactions(example1.innerHTML);
+
+          assert.equal(parsed.is, "file");
+          assert.equal(parsed.body().is, "body");          
+          assert.equal(parsed.body().fields().is, "fields");
+          var fields = parsed.body().fields();
+          assert.equal(fields.fieldCount(), 11);
+        });
+
+        test('parse example international 1', function() {
+          var example1 = Polymer.dom(home.root).querySelector('#example-swift-mt940-international-1');
+          var parsed = parseService.parseTransactions(example1.innerHTML);
+
+          assert.equal(parsed.is, "file");
+          assert.equal(parsed.body().is, "body");          
+          assert.equal(parsed.body().fields().is, "fields");
+          var fields = parsed.body().fields();
+          assert.equal(fields.fieldCount(), 7);
         });
       });
     </script>

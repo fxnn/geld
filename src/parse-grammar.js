@@ -10,9 +10,12 @@ Mt940Object.prototype = {
         }
     },
     tag: function () {
-        this.assertIs("fieldname", "headerblock");
+        this.assertIs("fieldname", "fieldsInBraces", "headerblock");
         if (this.is == "fieldname") {
             return this.data[2].data[0];
+        }
+        if (this.is == "fieldsInBraces") {
+            return this.data[1];
         }
         return this.data[0].data[0];
     },
@@ -35,7 +38,8 @@ Mt940Object.prototype = {
     fields: function () {
         this.assertIs("body");
         if (this.data.is == "fieldsInBraces") {
-            return this.data.data[1];
+            var fieldsInBraces = this.data;
+            return fieldsInBraces.data[2];
         }
         return this.data;
     },
@@ -78,17 +82,38 @@ Mt940Grammar.prototype = {
         }
         return result;
     },
+    // NOTE: parser-generator.js has bad error handling, as there's no stacktrace whatsoever.
+    // We add this behaviour using this decorator function.
+    _handleErrors: function(fn) {
+        return function() {
+            try {
+                console.log("Parsing step", fn.ruleName);
+                return fn.apply(this, arguments);
+            } catch (ex) {
+                console.log("Parsing step", fn.ruleName, "failed with", ex);
+                throw ex;
+            }
+        }
+    },
+    // Mimics parser-generator.js's process function and adds custom behaviour.
+    _process: function(name, rule, processor) {
+        var fn = this.o.process(rule, processor);
+        fn.ruleName = name;
+        return this._handleErrors(fn);
+    },
     $token: function(name, regex) {
         this[name] = this.o.stoken(regex);
     },
     $rule: function(name, rule) {
-        this[name] = this.o.process(rule, function(data) {
-            console.log(name, data);
+        if (rule === null) {
+            throw new Error("Rule for " + name + " is null!");
+        }
+        this[name] = this._process(name, rule, function(data) {
             return new Mt940Object(name, data);
         });
     },
     $inline: function(name, rule) {
-        this[name] = this.o.process(rule, function(inlined) {
+        this[name] = this._process(name, rule, function(inlined) {
             if (Object.keys(inlined).indexOf("data") >= 0) {
                 return new Mt940Object(name, inlined.data);
             }
@@ -97,7 +122,7 @@ Mt940Grammar.prototype = {
     },
     $concat: function(name, rule) {
         var _concatToString = this._concatToString;
-        this[name] = this.o.process(rule, function(a) {
+        this[name] = this._process(name, rule, function(a) {
             return new Mt940Object(name, _concatToString(a));
         });
     }

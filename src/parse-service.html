@@ -29,16 +29,15 @@
                 g.$token("float", /[0-9]+,[0-9]+/);
                 g.$token("newline", "\n");
 
-                // basic rules
-                g.$rule("tag", o.each(g.alphanum, g.colon));
-                g.$rule("fieldname", o.each(g.newline, g.colon, g.tag));
-                g.$rule("end", o.each(g.newline, g.dash));
-
                 return g;
             },
 
             _grammar: function(o) {
                 var g = this._tokens(o);
+
+                g.$rule("tag", o.each(g.alphanum, g.colon));
+                g.$rule("fieldname", o.each(g.newline, g.colon, g.tag));
+                g.$rule("end", o.each(g.newline, g.dash));
 
                 g.$rule("headercontent", o.each(g.tag, g.alphanum));
                 g.$inline("headerblock", o.between(g.lbrace, g.headercontent, g.rbrace));
@@ -50,8 +49,9 @@
                 g.$rule("field", o.each(g.fieldname, g.fielddata));
                 g.$rule("fields", o.many(g.field));
                 g.$rule("fieldsInBraces", o.each(g.lbrace, g.tag, g.fields, g.end, g.rbrace));
-                // NOTE, that I found examples with and without braces
-                g.$rule("body", o.any(g.fields, g.fieldsInBraces));
+                // HINT, that I found examples with and without braces
+                // NOTE, that fieldsInBraces (more complex) must come before fields (fallback/simple)
+                g.$rule("body", o.any(g.fieldsInBraces, g.fields));
 
                 g.$rule("file", o.each(g.header, g.body));
 
