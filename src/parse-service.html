@@ -1,8 +1,9 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<script src="../bower_components/augment/augment.js"></script>
 
 <script>var module = {};</script>
 <script src="../bower_components/parser-generator/parser-generator.js"></script>
-<script>var Parser = module.exports;</script>
+<script>var Parser = module.exports; module = undefined;</script>
 
 <script src="parse-grammar.js"></script>
 
@@ -38,16 +39,17 @@
                 g.$rule("tag", o.each(g.alphanum, g.colon));
                 g.$rule("fieldname", o.each(g.newline, g.colon, g.tag));
                 g.$rule("endSuccessor", o.any(g.rbrace, g.newline));
-                g.$rule("endInhibitor", o.not(g.endSuccessor));
-                g.$rule("end", o.each(g.newline, g.dash, o.not(g.endInhibitor)));
+                // NOTE, that there is data where a dash starts a data line, so we need to be picky about whether it's the end or not
+                g.$rule("endContradiction", o.not(g.endSuccessor));
+                g.$rule("end", o.each(g.newline, g.dash, o.not(g.endContradiction)));
 
                 g.$rule("headercontent", o.each(g.tag, g.alphanum));
-                g.$inline("headerblock", o.between(g.lbrace, g.headercontent, g.rbrace));
+                g.$rule("headerblock", o.between(g.lbrace, g.headercontent, g.rbrace));
                 // NOTE, that a header might be empty
                 g.$rule("header", o.many(g.headerblock));
 
-                g.$concat("fielddataline", o.each(o.not(g.end), o.not(g.fieldname), o.ignore(o.optional(g.newline)), o.min(1, g.anychar)));
-                g.$concat("fielddata", o.many(g.fielddataline));
+                g.$rule("fielddataline", o.each(o.not(g.end), o.not(g.fieldname), o.ignore(o.optional(g.newline)), o.min(1, g.anychar)));
+                g.$rule("fielddata", o.many(g.fielddataline));
                 g.$rule("field", o.each(g.fieldname, g.fielddata));
                 g.$rule("fields", o.many(g.field));
                 g.$rule("fieldsInBraces", o.each(g.lbrace, g.tag, g.fields, g.end, g.rbrace));
