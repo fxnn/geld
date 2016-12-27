@@ -156,6 +156,7 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
           assert.sameParseResult(g.lbrace("{abc"), ["{", "abc"]);
           assert.sameParseResult(g.anychar("(42:answers everything)"),
               ["(42:answers everything)", ""]);
+          assert.sameParseResult(g.anychar("x\ny"), ["x", "\ny"]);
         });
 
         test('parse tag', function() {
@@ -273,7 +274,7 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
           assert.equal(parsed.body().is, "body");          
           assert.equal(parsed.body().fields().is, "fields");
           var fields = parsed.body().fields();
-          assert.equal(fields.fieldCount(), 11);
+          assert.equal(fields.fieldCount(), 12);
         });
 
         test('parse example international 1', function() {

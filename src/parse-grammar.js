@@ -49,11 +49,27 @@ Mt940Object.prototype = {
     },
 };
 
+var Mt940LogLevel = {
+    None: {value:0, logExceptions:false, logParsingSteps:false},
+    Debug: {value:1, logExceptions:true, logParsingSteps:false},
+    Trace: {value:2, logExceptions:true, logParsingSteps:true}
+};
+
 // o: Operators from parser-generator.js
-var Mt940Grammar = function (o) {
+var Mt940Grammar = function (o, logLevel) {
+    this.logLevel = logLevel;
+    if (!this.logLevel) {
+        this.logLevel = Mt940LogLevel.None;
+    }
     this.o = o;
 };
 Mt940Grammar.prototype = {
+    _isLogExceptions: function() {
+        return this.logLevel.logExceptions;
+    },
+    _isLogParsingSteps: function() {
+        return this.logLevel.logParsingSteps;
+    },
     // flatten(a) flattens an array a of arrays
     // http://stackoverflow.com/a/16953805
     _flatten: function(a, r){
@@ -87,10 +103,18 @@ Mt940Grammar.prototype = {
     _handleErrors: function(fn) {
         return function() {
             try {
-                console.log("Parsing step", fn.ruleName);
-                return fn.apply(this, arguments);
+                if (this._isLogParsingSteps()) {
+                    console.log("Parsing step", fn.ruleName);
+                }
+                var r =fn.apply(this, arguments);
+                if (this._isLogParsingSteps()) {
+                    console.log("Parsing step", fn.ruleName, "returned", r);
+                }
+                return r;
             } catch (ex) {
-                console.log("Parsing step", fn.ruleName, "failed with", ex);
+                if (this._isLogExceptions()) {
+                    console.log("Parsing step", fn.ruleName, "failed with", ex);
+                }
                 throw ex;
             }
         }

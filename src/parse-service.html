@@ -15,7 +15,7 @@
 
             _tokens: function(o) {
                 var o = Parser.Operators;
-                var g = new Mt940Grammar(o);
+                var g = new Mt940Grammar(o, Mt940LogLevel.None);
 
                 // basic tokens
                 g.$token("lbrace", "{");
@@ -25,7 +25,7 @@
                 g.$token("number", /[0-9]+/);
                 g.$token("alpha", /[A-Z]+/);
                 g.$token("alphanum", /[A-Z0-9]+/);
-                g.$token("anychar", /[a-zA-Z0-9/?():.,'+ -]+/); // no newline
+                g.$token("anychar", /[^\n]+/);
                 g.$token("float", /[0-9]+,[0-9]+/);
                 g.$token("newline", "\n");
 
@@ -37,14 +37,16 @@
 
                 g.$rule("tag", o.each(g.alphanum, g.colon));
                 g.$rule("fieldname", o.each(g.newline, g.colon, g.tag));
-                g.$rule("end", o.each(g.newline, g.dash));
+                g.$rule("endSuccessor", o.any(g.rbrace, g.newline));
+                g.$rule("endInhibitor", o.not(g.endSuccessor));
+                g.$rule("end", o.each(g.newline, g.dash, o.not(g.endInhibitor)));
 
                 g.$rule("headercontent", o.each(g.tag, g.alphanum));
                 g.$inline("headerblock", o.between(g.lbrace, g.headercontent, g.rbrace));
                 // NOTE, that a header might be empty
                 g.$rule("header", o.many(g.headerblock));
 
-                g.$concat("fielddataline", o.each(o.optional(o.ignore(g.newline)), o.not(o.any(g.dash, g.colon)), o.min(1, g.anychar)));
+                g.$concat("fielddataline", o.each(o.not(g.end), o.not(g.fieldname), o.ignore(o.optional(g.newline)), o.min(1, g.anychar)));
                 g.$concat("fielddata", o.many(g.fielddataline));
                 g.$rule("field", o.each(g.fieldname, g.fielddata));
                 g.$rule("fields", o.many(g.field));
