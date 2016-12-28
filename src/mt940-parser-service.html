@@ -1,22 +1,23 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <script src="../bower_components/augment/augment.js"></script>
 
-<script>var module = {};</script>
-<script src="../bower_components/parser-generator/parser-generator.js"></script>
-<script>var Parser = module.exports; module = undefined;</script>
+<script>
+    window.Mt940Parser = new Object;
+</script>
 
-<script src="parse-grammar.js"></script>
+<link rel="import" href="../src/mt940-parser/parser-generator.html"></script>
+<script src="../src/mt940-parser/ast-element.js"></script>
+<script src="../src/mt940-parser/grammar.js"></script>
 
-<dom-module id="parse-service">
+<dom-module id="mt940-parser-service">
 
     <script>
         Polymer({
-            is: 'parse-service',
-
+            is: 'mt940-parser-service',
 
             _tokens: function(o) {
-                var o = Parser.Operators;
-                var g = new Mt940Grammar(o, Mt940LogLevel.None);
+                var o = Mt940Parser.ParserGenerator.Operators;
+                var g = new Mt940Parser.Grammar(o, Mt940Parser.LogLevel.None);
 
                 // basic tokens
                 g.$token("lbrace", "{");
@@ -66,7 +67,7 @@
                 console.log("Parsing " + data.length + " bytes ...");
 
                 var normalized = data.replace(/\r\n/g, "\n");
-                var parse = this._grammar(Parser.Operators);
+                var parse = this._grammar(Mt940Parser.ParserGenerator.Operators);
                 var file = parse.file(normalized);
                 if (file[1] != "") {
                     throw new Error("Couldn't be parsed completely, remaining: " + file[1]);

@@ -1,13 +1,3 @@
-<!--
-@license
-Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
-
 <!doctype html>
 <html lang="en">
   <head>
@@ -20,12 +10,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script src="../bower_components/web-component-tester/browser.js"></script>
 
     <!-- Import the element to test -->
-    <link rel="import" href="../src/parse-service.html">
+    <link rel="import" href="../src/mt940-parser-service.html">
   </head>
   <body>
-    <test-fixture id="parse-service-fixture">
+    <test-fixture id="mt940-parser-service-fixture">
       <template>
-        <parse-service id="parseService"></parse-service>
+        <mt940-parser-service id="sut"></mt940-parser-service>
 
         <h1>Example data</h1>
 
@@ -113,47 +103,25 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
     </test-fixture>
 
     <script>
-      suite('<parse-service>', function() {
+      suite('<mt940-parser-service>', function() {
+        var Mt940Parser;
+        var AstElement;
         var home;
-        var parseService;
+        var sut;
         var g;
 
         setup(function() {
-          home = fixture('parse-service-fixture');
-          parseService = Polymer.dom(home.root).querySelector('#parseService');
-          g = parseService._grammar(Parser.Operators);
-          assert.samePrototype = function(actual, expected) {
-            assert.equal(actual.prototype, expected.prototype,
-              "Expected the prototype of:\n  " + expected + "\nbut got:\n  " + actual
-            );
+          Mt940Parser = window.Mt940Parser;
+          if (!(typeof Mt940Parser === 'object')) {
+            assert.fail("Mt940Parser undefined");
           }
-          assert.sameParseResult = function(actual, expected) {
-            try {
-              if (actual == null) {
-                assert.equal(actual, expected);
-              } else if (actual instanceof Array) {
-                if (!(expected instanceof Array)) {
-                  throw new Error("actual is an array, but wasn't expected to be");
-                }
-                if (actual.length != expected.length) {
-                  throw new Error("actual array has different length than expected array");
-                }
-                for (var i = 0; i < actual.length; i++) {
-                  assert.sameParseResult(actual[i], expected[i]);
-                }
-              } else if(expected instanceof Mt940Object) {
-                assert.samePrototype(actual, expected);
-                assert.sameParseResult(actual.data, expected.data);
-              } else {
-                assert.equal(actual, expected);
-              }
-            } catch (ex) {
-              throw new Error(ex.stack
-                  + "\n\nExpected the actual parse result:\n  "
-                  + JSON.stringify(actual) + "\nto be:\n  "
-                  + JSON.stringify(expected) + "\nbut got the error above.");
-            }
-          };
+          AstElement = Mt940Parser.AstElement;
+
+          home = fixture('mt940-parser-service-fixture');
+          sut = Polymer.dom(home.root).querySelector('#sut');
+          g = sut._grammar(Mt940Parser.ParserGenerator.Operators);
+
+          defineAssertMethods(assert, Mt940Parser);
         });
 
         test('basic tokens correct', function() {
@@ -166,21 +134,21 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
 
         test('parse tag', function() {
           assert.sameParseResult(g.tag("42:"),
-              [new Mt940Object.Tag(["42", ":"]), ""]);
+              [new AstElement.Tag(["42", ":"]), ""]);
         });
 
         test('parse fieldname', function() {
           assert.sameParseResult(g.fieldName("\n:42:"), [
-                new Mt940Object.FieldName(["\n", ":",
-                    new Mt940Object.Tag(["42", ":"])
+                new AstElement.FieldName(["\n", ":",
+                    new AstElement.Tag(["42", ":"])
                 ]), ""]);
           assert.equal(g.fieldName("\n:42:")[0].tag().number(), "42");
         });
 
         test('parse headercontent', function() {
           assert.sameParseResult(g.headerContent("1:F01BPHKPLPKXXX0000000000"), [
-              new Mt940Object.HeaderContent([
-                  new Mt940Object.Tag(["1", ":"]),
+              new AstElement.HeaderContent([
+                  new AstElement.Tag(["1", ":"]),
                   "F01BPHKPLPKXXX0000000000"
               ]), ""]);
         });
@@ -196,10 +164,10 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
           assert.equal(result[1], "");
           var header = result[0];
 
-          assert.instanceOf(header, Mt940Object.Header);
+          assert.instanceOf(header, AstElement.Header);
           assert.equal(header.headerBlocks().length, 1);
           var headerBlock0 = header.headerBlocks()[0];
-          assert.instanceOf(headerBlock0, Mt940Object.HeaderBlock);
+          assert.instanceOf(headerBlock0, AstElement.HeaderBlock);
           assert.equal(headerBlock0.tagNumber(), "1");
           assert.equal(headerBlock0.headerData(), "F01BPHKPLPKXXX0000000000");
         });
@@ -211,7 +179,7 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
               + "D:6792496639?27Okres:03M09?27Symbol formularza:PIT4?28Opis:ZAPL.\n"
               + "POD. DAFIK?3010101270?310004592221000000?32Urzad Skarbowy Krakow\n"
               + "tar?33e Miasto Krakow?38PL69101012700004592221000000")[0];
-          assert.instanceOf(result, Mt940Object.Field);
+          assert.instanceOf(result, AstElement.Field);
           assert.equal(result.fieldname().tagNumber(), "86");
           assert.sameParseResult(result.fielddata(), 
             "031?00Wyplata-(dysp/przel)?2069101012700004592221000000?2115619?" +
@@ -246,49 +214,84 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
             ":20: NETMEXID\n" + 
             "-}");
           assert.equal(result[1], "");
-          assert.instanceOf(result[0], Mt940Object.FieldsInBraces);
+          assert.instanceOf(result[0], AstElement.FieldsInBraces);
           var fields = result[0].data[2];
-          assert.instanceOf(fields, Mt940Object.Fields);
+          assert.instanceOf(fields, AstElement.Fields);
           assert.equal(fields.fieldCount(), 1);
           var field0 = fields.data[0];
-          assert.instanceOf(field0, Mt940Object.Field);
+          assert.instanceOf(field0, AstElement.Field);
           assert.equal(field0.fieldname().tagNumber(), "20");
           assert.equal(field0.fielddata(), " NETMEXID");
         });
 
         test('parse example domestic 1', function() {
           var example1 = Polymer.dom(home.root).querySelector('#example-swift-mt940-domestic-1');
-          var parsed = parseService.parseTransactions(example1.innerHTML);
+          var parsed = sut.parseTransactions(example1.innerHTML);
 
-          assert.instanceOf(parsed, Mt940Object.File);
-          assert.instanceOf(parsed.body(), Mt940Object.Body);          
-          assert.instanceOf(parsed.body().fields(), Mt940Object.Fields);
+          assert.instanceOf(parsed, AstElement.File);
+          assert.instanceOf(parsed.body(), AstElement.Body);          
+          assert.instanceOf(parsed.body().fields(), AstElement.Fields);
           var fields = parsed.body().fields();
           assert.equal(fields.fieldCount(), 11);
         });
 
         test('parse example domestic 2', function() {
           var example1 = Polymer.dom(home.root).querySelector('#example-swift-mt940-domestic-2');
-          var parsed = parseService.parseTransactions(example1.innerHTML);
+          var parsed = sut.parseTransactions(example1.innerHTML);
 
-          assert.instanceOf(parsed, Mt940Object.File);
-          assert.instanceOf(parsed.body(), Mt940Object.Body);          
-          assert.instanceOf(parsed.body().fields(), Mt940Object.Fields);
+          assert.instanceOf(parsed, AstElement.File);
+          assert.instanceOf(parsed.body(), AstElement.Body);          
+          assert.instanceOf(parsed.body().fields(), AstElement.Fields);
           var fields = parsed.body().fields();
           assert.equal(fields.fieldCount(), 12);
         });
 
         test('parse example international 1', function() {
           var example1 = Polymer.dom(home.root).querySelector('#example-swift-mt940-international-1');
-          var parsed = parseService.parseTransactions(example1.innerHTML);
+          var parsed = sut.parseTransactions(example1.innerHTML);
 
-          assert.instanceOf(parsed, Mt940Object.File);
-          assert.instanceOf(parsed.body(), Mt940Object.Body);          
-          assert.instanceOf(parsed.body().fields(), Mt940Object.Fields);
+          assert.instanceOf(parsed, AstElement.File);
+          assert.instanceOf(parsed.body(), AstElement.Body);          
+          assert.instanceOf(parsed.body().fields(), AstElement.Fields);
           var fields = parsed.body().fields();
           assert.equal(fields.fieldCount(), 7);
         });
       });
+
+      function defineAssertMethods(assert, Mt940Parser) {
+          assert.samePrototype = function(actual, expected) {
+            assert.equal(actual.prototype, expected.prototype,
+              "Expected the prototype of:\n  " + expected + "\nbut got:\n  " + actual
+            );
+          }
+          assert.sameParseResult = function(actual, expected) {
+            try {
+              if (actual == null) {
+                assert.equal(actual, expected);
+              } else if (actual instanceof Array) {
+                if (!(expected instanceof Array)) {
+                  throw new Error("actual is an array, but wasn't expected to be");
+                }
+                if (actual.length != expected.length) {
+                  throw new Error("actual array has different length than expected array");
+                }
+                for (var i = 0; i < actual.length; i++) {
+                  assert.sameParseResult(actual[i], expected[i]);
+                }
+              } else if(expected instanceof Mt940Parser.AstElement) {
+                assert.samePrototype(actual, expected);
+                assert.sameParseResult(actual.data, expected.data);
+              } else {
+                assert.equal(actual, expected);
+              }
+            } catch (ex) {
+              throw new Error(ex.stack
+                  + "\n\nExpected the actual parse result:\n  "
+                  + JSON.stringify(actual) + "\nto be:\n  "
+                  + JSON.stringify(expected) + "\nbut got the error above.");
+            }
+          };
+      }
     </script>
   </body>
 </html>
