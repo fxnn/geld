@@ -33,7 +33,7 @@
                 g.$token("alphanum", /[A-Z0-9]+/);
                 g.$token("anychar", /[^\n]+/);
                 g.$token("float", /[0-9]+,[0-9]+/);
-                g.$token("newline", "\n");
+                g.$token("newline", /[\n]+/);
             },
 
             _astElementFactory: function(name, data) {
