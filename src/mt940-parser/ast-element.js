@@ -18,7 +18,7 @@
             this.uber.constructor.call(this, data);
         },
         tag: function() {
-            return this.data[2];
+            return this.data[1];
         },
         tagNumber: function() {
             return this.tag().number();
@@ -29,7 +29,7 @@
             this.uber.constructor.call(this, data);
         },
         lineContents: function() {
-            return this.data[3];
+            return this.data[2];
         },
     });
     AstElement.FieldData = extend(AstElement, {
@@ -59,13 +59,37 @@
             return this.data[1].data;
         },
     });
-    AstElement.Fields = extend(AstElement, {
+    AstElement.FieldSet = extend(AstElement, {
         constructor: function(data) {
             this.uber.constructor.call(this, data);
         },
         fieldCount: function() {
-            return this.data.length;
+            return this.data[0].length;
         },
+        fields: function() {
+            return this.data[0];
+        }
+    });
+    AstElement.FieldSets = extend(AstElement, {
+        constructor: function(data) {
+            this.uber.constructor.call(this, data);
+        },
+        fieldSetCount: function() {
+            return this.fieldSets().length;
+        },
+        fieldSets: function() {
+            return this.data;
+        },
+        fields: function() {
+            var result = [];
+            for(var i=0; i<this.fieldSetCount(); i++) {
+                var fields = this.fieldSets()[i].fields();
+                for(var j=0; j<fields.length; j++) {
+                    result.push(fields[j]);
+                }
+            }
+            return result;
+        }
     });
     AstElement.FieldsInBraces = extend(AstElement, {
         constructor: function(data) {
@@ -77,17 +101,28 @@
         tagNumber: function() {
             return this.tag().number();
         },
+        fieldSets: function() {
+            return this.data[3];
+        },
     });
     AstElement.Body = extend(AstElement, {
         constructor: function(data) {
             this.uber.constructor.call(this, data);
         },
-        fields: function () {
+        fields: function() {
+            return this.fieldSets().fields();
+        },
+        /** @returns {FieldSets} */
+        fieldSets: function () {
             if (this.data instanceof AstElement.FieldsInBraces) {
                 var fieldsInBraces = this.data;
-                return fieldsInBraces.data[2];
+                return fieldsInBraces.fieldSets();
             }
-            return this.data;
+            if (this.data instanceof AstElement.FieldSets) {
+                var fieldSets = this.data;
+                return fieldSets;
+            }
+            throw new Error("Body data is unexpected: " + this.data);
         },
     });
     AstElement.HeaderContent = extend(AstElement, {

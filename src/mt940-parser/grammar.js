@@ -1,6 +1,4 @@
-(function(Mt940Parser, extend) {
-    var AstElement = Mt940Parser.AstElement;
-
+(function(module, extend) {
     var LogLevel = {
         None: {value:0, logExceptions:false, logParsingSteps:false},
         Debug: {value:1, logExceptions:true, logParsingSteps:false},
@@ -8,9 +6,15 @@
     };
 
     var Grammar = extend(Object, {
-        // o: Operators from parser-generator.js
-        constructor: function (o, logLevel) {
+        /**
+         * @param {Object} o is the Operators object from parser-generator.js
+         * @param {Function} astElementFactory is a function (String, String) -> Object, transferring an AST 
+         *       element by its name and its contents to the object to be returned
+         * @param {Object} logLevel denotes the verbosity regarding debug statements.
+         */
+        constructor: function (o, astElementFactory, logLevel) {
             this.o = o;
+            this.astElementFactory = astElementFactory;
             this.logLevel = logLevel;
             if (!this.logLevel) {
                 this.logLevel = LogLevel.None;
@@ -24,25 +28,13 @@
                 throw new Error("Rule for " + name + " is null!");
             }
             this[name] = this._process(name, rule, function(data) {
-                return this._createMt940Object(name, data);
+                return this._createAstElement(name, data);
             });
         },
-        _createMt940Object: function(name, data) {
-            if (name == "file") return new AstElement.File(data);
-            if (name == "body") return new AstElement.Body(data);
-            if (name == "header") return new AstElement.Header(data);
-            if (name == "headerBlock") return new AstElement.HeaderBlock(data);
-            if (name == "headerContent") return new AstElement.HeaderContent(data);
-            if (name == "fields") return new AstElement.Fields(data);
-            if (name == "fieldsInBraces") return new AstElement.FieldsInBraces(data);
-            if (name == "field") return new AstElement.Field(data);
-            if (name == "fieldName") return new AstElement.FieldName(data);
-            if (name == "fieldData") return new AstElement.FieldData(data);
-            if (name == "fieldDataLine") return new AstElement.FieldDataLine(data);
-            if (name == "tag") return new AstElement.Tag(data);
-            return new AstElement(data);
+        _createAstElement: function(name, data) {
+            return this.astElementFactory(name, data);
         },
-        // Mimics parser-generator.js's process function and adds custom behaviour.
+        /** Mimics parser-generator.js's process function and adds custom behaviour. */
         _process: function(name, rule, processor) {
             var fn = this.o.process(rule, processor);
             fn.ruleName = name;
@@ -77,6 +69,6 @@
         },
     });
 
-    Mt940Parser.LogLevel = LogLevel;
-    Mt940Parser.Grammar = Grammar;
+    module.LogLevel = LogLevel;
+    module.Grammar = Grammar;
 }(window.Mt940Parser, window.augment.extend));

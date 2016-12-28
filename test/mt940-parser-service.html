@@ -99,6 +99,46 @@ UK GZY 77 T?27RANZYSTORY 300 SZTUK BT34SX?28OPORNIKI 500 SZTUK W
 Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
 :62F:C031020EUR3891,59
 -}</pre>
+
+      <h2>Sparkasse MT940 export</h2>
+      <pre id="example-sparkasse-mt940-1">
+:20:STARTUMSE
+:25:83050000/0123456789
+:28C:00000/001
+:60F:C161122EUR227,77
+:61:1611231123DR106,75N010NONREF
+:86:006?00EIGENE KREDITKARTENABRECHN.?101234?20KREDITKARTEN-ABR. 
+VOM 18.11?21447595XXXXXX7209     106,75?3083050000?310123456789?3
+2SPARKASSE GERA-GREIZ?34123
+:62F:C161123EUR121,02
+-
+:20:STARTUMSE
+:25:83050000/0123456789
+:28C:00000/001
+:60F:C161123EUR121,02
+:61:1611251125DR5,15N011NONREF
+:86:107?00SEPA-ELV-LASTSCHRIFT?101234?20EREF+12345678901234567890
+12?2112345?22MREF+0123456789012345678890?23CRED+01234567890123456
+7?24SVWZ+0123456789012345678901?2512345 REWE SAGT DANKE. 6789?260
+123?30ABCDEFGH?310123456789012345678901?32REWE Berlin/Friede?3401
+2
+:61:1611251125DR60,00N032NONREF
+:86:106?00AUSZAHLUNG?109123?20SVWZ+2016-11-25T01.02.03 Ka?21rte9 
+2016-12?22ABWA+123 456789//Berliner S?23parkasse/DE?30BELADEBEXXX
+?31DE01234567890123456789?32Berliner Sparkasse?34123
+:62F:C161125EUR55,87
+-
+:20:STARTUMSE
+:25:83050000/0123456789
+:28C:00000/001
+:60F:C161125EUR55,87
+:61:1611281128DR24,97N037NONREF
+:86:106?00KARTENZAHLUNG?101234?20SVWZ+2016-11-25T10.11.12 Ka?21rt
+e9 2016-11?22ABWA+TK Maxx Berlin Schoene?23berg//Berlin/DE?30DRES
+DEFF300?31DE01234567890123456789?32TK MAXX BERLIN SCHOE BERLIN?34
+012
+:62F:C161128EUR30,90
+-</pre>
       </template>
     </test-fixture>
 
@@ -138,11 +178,11 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
         });
 
         test('parse fieldname', function() {
-          assert.sameParseResult(g.fieldName("\n:42:"), [
-                new AstElement.FieldName(["\n", ":",
+          assert.sameParseResult(g.fieldName(":42:"), [
+                new AstElement.FieldName([":",
                     new AstElement.Tag(["42", ":"])
                 ]), ""]);
-          assert.equal(g.fieldName("\n:42:")[0].tag().number(), "42");
+          assert.equal(g.fieldName(":42:")[0].tag().number(), "42");
         });
 
         test('parse headercontent', function() {
@@ -174,11 +214,11 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
 
         test('parse field', function() {
           var result = g.field(
-                "\n:86:031?00Wyplata-(dysp/przel)?2069101012700004592221000000?2115619?\n"
+                ":86:031?00Wyplata-(dysp/przel)?2069101012700004592221000000?2115619?\n"
               + "24Wplata na organ podatkowy?25Typ identyfikatora:N?26Zawartosc I\n"
               + "D:6792496639?27Okres:03M09?27Symbol formularza:PIT4?28Opis:ZAPL.\n"
               + "POD. DAFIK?3010101270?310004592221000000?32Urzad Skarbowy Krakow\n"
-              + "tar?33e Miasto Krakow?38PL69101012700004592221000000")[0];
+              + "tar?33e Miasto Krakow?38PL69101012700004592221000000\n")[0];
           assert.instanceOf(result, AstElement.Field);
           assert.equal(result.fieldname().tagNumber(), "86");
           assert.sameParseResult(result.fielddata(), 
@@ -189,18 +229,20 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
             "tar?33e Miasto Krakow?38PL69101012700004592221000000");
         });
 
-        test('parse fields', function() {
-          var result = g.fields("\n" +
+        test('parse fieldSet', function() {
+          var result = g.fieldSet(
             ":60F:C031209PLN95,03\n" +
             ":61:0312091209C20000,FBARNONREF//1010001272972001\n" +
             "Payment of funds to own account\n" +
-            ":86:082?00Wplata wlasna?2115616?24Rach.wplacajac. 101000"
+            ":86:082?00Wplata wlasna?2115616?24Rach.wplacajac. 101000\n" +
+            "-\n"
           );
 
           assert.equal(result[1], "");
+          assert.instanceOf(result[0], Mt940Parser.AstElement.FieldSet);
           assert.equal(result[0].fieldCount(), 3);
 
-          var fields = result[0].data;
+          var fields = result[0].fields();
           assert.equal(fields[0].fieldname().tagNumber(), "60F");
           assert.equal(fields[0].fielddata(), "C031209PLN95,03");
           assert.equal(fields[1].fieldname().tagNumber(), "61");
@@ -215,10 +257,11 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
             "-}");
           assert.equal(result[1], "");
           assert.instanceOf(result[0], AstElement.FieldsInBraces);
-          var fields = result[0].data[2];
-          assert.instanceOf(fields, AstElement.Fields);
-          assert.equal(fields.fieldCount(), 1);
-          var field0 = fields.data[0];
+          var fieldSets = result[0].fieldSets();
+          assert.instanceOf(fieldSets, AstElement.FieldSets);
+          assert.equal(fieldSets.fieldSetCount(), 1);
+          var fields = fieldSets.fields();
+          var field0 = fields[0];
           assert.instanceOf(field0, AstElement.Field);
           assert.equal(field0.fieldname().tagNumber(), "20");
           assert.equal(field0.fielddata(), " NETMEXID");
@@ -230,9 +273,9 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
 
           assert.instanceOf(parsed, AstElement.File);
           assert.instanceOf(parsed.body(), AstElement.Body);          
-          assert.instanceOf(parsed.body().fields(), AstElement.Fields);
           var fields = parsed.body().fields();
-          assert.equal(fields.fieldCount(), 11);
+          assert.equal(fields.length, 11);
+          assert.instanceOf(fields[0], AstElement.Field);
         });
 
         test('parse example domestic 2', function() {
@@ -241,9 +284,9 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
 
           assert.instanceOf(parsed, AstElement.File);
           assert.instanceOf(parsed.body(), AstElement.Body);          
-          assert.instanceOf(parsed.body().fields(), AstElement.Fields);
           var fields = parsed.body().fields();
-          assert.equal(fields.fieldCount(), 12);
+          assert.equal(fields.length, 12);
+          assert.instanceOf(fields[0], AstElement.Field);
         });
 
         test('parse example international 1', function() {
@@ -252,9 +295,27 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
 
           assert.instanceOf(parsed, AstElement.File);
           assert.instanceOf(parsed.body(), AstElement.Body);          
-          assert.instanceOf(parsed.body().fields(), AstElement.Fields);
           var fields = parsed.body().fields();
-          assert.equal(fields.fieldCount(), 7);
+          assert.equal(fields.length, 7);
+          assert.instanceOf(fields[0], AstElement.Field);
+        });
+
+        test('parse example sparkasse 1', function() {
+          var example1 = Polymer.dom(home.root).querySelector('#example-sparkasse-mt940-1');
+          var parsed = sut.parseTransactions(example1.innerHTML);
+
+          assert.instanceOf(parsed, AstElement.File);
+          assert.instanceOf(parsed.body(), AstElement.Body);          
+          assert.instanceOf(parsed.body().fieldSets(), AstElement.FieldSets);
+          var fieldSets = parsed.body().fieldSets().fieldSets();
+          assert.equal(fieldSets.length, 3);
+          assert.equal(fieldSets[0].fieldCount(), 7);
+          assert.equal(fieldSets[1].fieldCount(), 9);
+          assert.equal(fieldSets[2].fieldCount(), 7);
+          assert.instanceOf(fieldSets[0].fields()[0], AstElement.Field);
+          var fields = parsed.body().fields();
+          assert.equal(fields.length, 23);
+          assert.instanceOf(fields[0], AstElement.Field);
         });
       });
 

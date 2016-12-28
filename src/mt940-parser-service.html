@@ -15,10 +15,14 @@
         Polymer({
             is: 'mt940-parser-service',
 
-            _tokens: function(o) {
-                var o = Mt940Parser.ParserGenerator.Operators;
-                var g = new Mt940Parser.Grammar(o, Mt940Parser.LogLevel.None);
+            properties: {
+                logLevel: {
+                    type: Object,
+                    value: Mt940Parser.LogLevel.None
+                }
+            },
 
+            _tokens: function(o, g) {
                 // basic tokens
                 g.$token("lbrace", "{");
                 g.$token("rbrace", "}");
@@ -30,33 +34,51 @@
                 g.$token("anychar", /[^\n]+/);
                 g.$token("float", /[0-9]+,[0-9]+/);
                 g.$token("newline", "\n");
-
-                return g;
             },
 
-            _grammar: function(o) {
-                var g = this._tokens(o);
+            _astElementFactory: function(name, data) {
+                var AstElement = Mt940Parser.AstElement;
+                if (name == "file") return new AstElement.File(data);
+                if (name == "body") return new AstElement.Body(data);
+                if (name == "header") return new AstElement.Header(data);
+                if (name == "headerBlock") return new AstElement.HeaderBlock(data);
+                if (name == "headerContent") return new AstElement.HeaderContent(data);
+                if (name == "fieldsInBraces") return new AstElement.FieldsInBraces(data);
+                if (name == "fieldSets") return new AstElement.FieldSets(data);
+                if (name == "fieldSet") return new AstElement.FieldSet(data);
+                if (name == "field") return new AstElement.Field(data);
+                if (name == "fieldName") return new AstElement.FieldName(data);
+                if (name == "fieldData") return new AstElement.FieldData(data);
+                if (name == "fieldDataLine") return new AstElement.FieldDataLine(data);
+                if (name == "tag") return new AstElement.Tag(data);
+                return new AstElement(data);
+            },
+
+            _grammar: function(o, logLevel) {
+                var g = new Mt940Parser.Grammar(o, this._astElementFactory, logLevel);
+                this._tokens(o, g);
 
                 g.$rule("tag", o.each(g.alphanum, g.colon));
-                g.$rule("fieldName", o.each(g.newline, g.colon, g.tag));
+                g.$rule("fieldName", o.each(g.colon, g.tag));
                 g.$rule("endSuccessor", o.any(g.rbrace, g.newline));
                 // NOTE, that there is data where a dash starts a data line, so we need to be picky about whether it's the end or not
                 g.$rule("endContradiction", o.not(g.endSuccessor));
-                g.$rule("end", o.each(g.newline, g.dash, o.not(g.endContradiction)));
+                g.$rule("end", o.each(g.dash, o.not(g.endContradiction)));
 
                 g.$rule("headerContent", o.each(g.tag, g.alphanum));
                 g.$rule("headerBlock", o.between(g.lbrace, g.headerContent, g.rbrace));
                 // NOTE, that a header might be empty
                 g.$rule("header", o.many(g.headerBlock));
 
-                g.$rule("fieldDataLine", o.each(o.not(g.end), o.not(g.fieldName), o.ignore(o.optional(g.newline)), o.min(1, g.anychar)));
+                g.$rule("fieldDataLine", o.each(o.not(g.end), o.not(g.fieldName), o.min(1, g.anychar), g.newline));
                 g.$rule("fieldData", o.many(g.fieldDataLine));
                 g.$rule("field", o.each(g.fieldName, g.fieldData));
-                g.$rule("fields", o.many(g.field));
-                g.$rule("fieldsInBraces", o.each(g.lbrace, g.tag, g.fields, g.end, g.rbrace));
+                g.$rule("fieldSet", o.each(o.many(g.field), g.end, o.optional(g.newline)));
+                g.$rule("fieldSets", o.many(g.fieldSet));
+                g.$rule("fieldsInBraces", o.each(g.lbrace, g.tag, g.newline, g.fieldSets, g.rbrace, o.optional(g.newline)));
                 // HINT, that I found examples with and without braces
                 // NOTE, that fieldsInBraces (more complex) must come before fields (fallback/simple)
-                g.$rule("body", o.any(g.fieldsInBraces, g.fields));
+                g.$rule("body", o.any(g.fieldsInBraces, g.fieldSets));
 
                 g.$rule("file", o.each(g.header, g.body));
 
@@ -66,8 +88,8 @@
             parseTransactions: function(data) {
                 console.log("Parsing " + data.length + " bytes ...");
 
-                var normalized = data.replace(/\r\n/g, "\n");
-                var parse = this._grammar(Mt940Parser.ParserGenerator.Operators);
+                var normalized = data.replace(/\r\n/g, "\n").trim() + "\n";
+                var parse = this._grammar(Mt940Parser.ParserGenerator.Operators, this.logLevel);
                 var file = parse.file(normalized);
                 if (file[1] != "") {
                     throw new Error("Couldn't be parsed completely, remaining: " + file[1]);
