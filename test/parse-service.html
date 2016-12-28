@@ -123,10 +123,9 @@ Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
           parseService = Polymer.dom(home.root).querySelector('#parseService');
           g = parseService._grammar(Parser.Operators);
           assert.samePrototype = function(actual, expected) {
-            assert.equal(actual.prototype, expected.prototype);
-            /*assert.isOk(expected.prototype.isPrototypeOf(actual),
+            assert.equal(actual.prototype, expected.prototype,
               "Expected the prototype of:\n  " + expected + "\nbut got:\n  " + actual
-            );*/
+            );
           }
           assert.sameParseResult = function(actual, expected) {
             try {
