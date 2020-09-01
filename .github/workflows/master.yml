@@ -67,6 +67,6 @@ jobs:
         dockerfile: src/main/docker/Dockerfile.${{ matrix.quarkusMode }}
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        repository: fxnn/artixray
+        repository: fxnn/geld
         tags: ${{ matrix.dockerImageTag }}
         add_git_labels: true
