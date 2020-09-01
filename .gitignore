@@ -1,0 +1,9 @@
+# IntelliJ
+/*.iml
+/.idea
+
+# Maven
+/target
+
+# Operating Systems
+.DS_Store
