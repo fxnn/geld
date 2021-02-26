@@ -1,4 +1,4 @@
-package de.fxnn.geld;
+package de.fxnn.geld.io.mt940;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -67,15 +67,18 @@ class Mt940ParserTest {
     assertThat(field.getContent(), is("1611231123DR106,75N010NONREF"));
     field = iterator.next();
     assertThat(field.getTag(), is("86"));
-    assertThat(field.getContent(), is("006"
-        + "?00EIGENE KREDITKARTENABRECHN."
-        + "?101234"
-        + "?20KREDITKARTEN-ABR.XVOM 18.11"
-        + "?21447595XXXXXX7209     106,75"
-        + "?3083050000"
-        + "?310123456789"
-        + "?32SPARKASSE GERA-GREIZ"
-        + "?34123"));
+    assertThat(
+        field.getContent(),
+        is(
+            "006"
+                + "?00EIGENE KREDITKARTENABRECHN."
+                + "?101234"
+                + "?20KREDITKARTEN-ABR.XVOM 18.11"
+                + "?21447595XXXXXX7209     106,75"
+                + "?3083050000"
+                + "?310123456789"
+                + "?32SPARKASSE GERA-GREIZ"
+                + "?34123"));
     field = iterator.next();
     assertThat(field.getTag(), is("62F"));
     assertThat(field.getContent(), is("C161123EUR121,02"));
@@ -94,11 +97,10 @@ class Mt940ParserTest {
   }
 
   static Stream<Mt940Case> loadMt940Cases() throws IOException {
-    try (InputStream is = Thread.currentThread().getContextClassLoader()
-        .getResourceAsStream(SOURCE_RESOURCE_NAME)) {
+    try (InputStream is =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream(SOURCE_RESOURCE_NAME)) {
       var mapper = new ObjectMapper(new YAMLFactory());
-      return mapper.readValue(is, new TypeReference<List<Mt940Case>>() {
-      }).stream();
+      return mapper.readValue(is, new TypeReference<List<Mt940Case>>() {}).stream();
     }
   }
 }

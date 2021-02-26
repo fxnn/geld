@@ -1,4 +1,4 @@
-package de.fxnn.geld;
+package de.fxnn.geld.io.mt940;
 
 import java.io.IOException;
 import java.io.PushbackReader;
