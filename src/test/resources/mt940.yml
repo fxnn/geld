@@ -1,4 +1,4 @@
-- id: example-swift-mt940-domestic-1
+- id: exampleSwiftMt940Domestic1
   metadata:
     name: SWIFT MT940 domestic 1
     url: http://martin.hinner.info/bankconvert/swift_mt940_942.pdf
@@ -30,7 +30,7 @@
     :86: 844?00Uznanie kwotą odsetek?20Odsetki od lokaty nr 101000?21022086
     :62F:C020325PLN50040,00
     -}
-- id: example-swift-mt940-domestic-2
+- id: exampleSwiftMt940Domestic2
   metadata:
     name: SWIFT MT940 domestic 2
     url: http://martin.hinner.info/bankconvert/swift_mt940_942.pdf
@@ -66,7 +66,7 @@
     tar?33e Miasto Krakow?38PL69101012700004592221000000
     :62F:C031209PLN14615,03
     -}
-- id: example-swift-mt940-international-1
+- id: exampleSwiftMt940International1
   metadata:
     name: SWIFT MT940 international
     url: http://martin.hinner.info/bankconvert/swift_mt940_942.pdf
@@ -85,7 +85,7 @@
     Q2?29232FX?30HYVEDEMM700?31701890012872?38DE09700202701890012872
     :62F:C031020EUR3891,59
     -}
-- id: example-sparkasse-mt940-1
+- id: exampleSparkasseMt9401
   metadata:
     name: Sparkasse MT940 export
   data: |

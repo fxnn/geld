@@ -14,19 +14,19 @@ A list of the basic requirements can be found online in the [Gluon Client docume
 
 #### Run the sample
 
-    mvn javafx:run
+		mvn javafx:run
 
 #### Run the sample as a native image
 
-    mvn client:build client:run
+		mvn client:build client:run
 
 #### Run the sample as a native android image
 
-    mvn -Pandroid client:build client:package client:install client:run
+		mvn -Pandroid client:build client:package client:install client:run
 
 #### Run the sample as a native iOS image
 
-    mvn -Pios client:build client:package client:install client:run
+		mvn -Pios client:build client:package client:install client:run
 
 ### Selected features
 

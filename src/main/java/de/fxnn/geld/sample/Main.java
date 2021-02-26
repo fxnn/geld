@@ -8,7 +8,6 @@ import com.gluonhq.charm.glisten.control.FloatingActionButton;
 import com.gluonhq.charm.glisten.mvc.View;
 import com.gluonhq.charm.glisten.visual.MaterialDesignIcon;
 import com.gluonhq.charm.glisten.visual.Swatch;
-import javafx.application.Application;
 import javafx.geometry.Dimension2D;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -16,53 +15,58 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 public class Main extends MobileApplication {
 
-    @Override
-    public void init() {
-        addViewFactory(HOME_VIEW, () -> {
-            FloatingActionButton fab = new FloatingActionButton(MaterialDesignIcon.SEARCH.text,
-                    e -> System.out.println("Search"));
+  @Override
+  public void init() {
+    addViewFactory(
+        HOME_VIEW,
+        () -> {
+          FloatingActionButton fab =
+              new FloatingActionButton(
+                  MaterialDesignIcon.SEARCH.text, e -> System.out.println("Search"));
 
-            ImageView imageView = new ImageView(new Image(Main.class.getResourceAsStream("openduke.png")));
-            imageView.setFitHeight(200);
-            imageView.setPreserveRatio(true);
+          ImageView imageView =
+              new ImageView(new Image(Main.class.getResourceAsStream("openduke.png")));
+          imageView.setFitHeight(200);
+          imageView.setPreserveRatio(true);
 
-            Label label = new Label("Hello, Gluon Mobile!");
+          Label label = new Label("Hello, Gluon Mobile!");
 
-            VBox root = new VBox(20, imageView, label);
-            root.setAlignment(Pos.CENTER);
+          VBox root = new VBox(20, imageView, label);
+          root.setAlignment(Pos.CENTER);
 
-            View view = new View(root) {
+          View view =
+              new View(root) {
                 @Override
                 protected void updateAppBar(AppBar appBar) {
-                    appBar.setTitleText("Gluon Mobile");
+                  appBar.setTitleText("Gluon Mobile");
                 }
-            };
+              };
 
-            fab.showOn(view);
+          fab.showOn(view);
 
-            return view;
+          return view;
         });
-    }
+  }
 
-    @Override
-    public void postInit(Scene scene) {
-        Swatch.LIGHT_GREEN.assignTo(scene);
-        scene.getStylesheets().add(Main.class.getResource("styles.css").toExternalForm());
+  @Override
+  public void postInit(Scene scene) {
+    Swatch.LIGHT_GREEN.assignTo(scene);
+    scene.getStylesheets().add(Main.class.getResource("styles.css").toExternalForm());
 
-        if (Platform.isDesktop()) {
-            Dimension2D dimension2D = DisplayService.create()
-                    .map(DisplayService::getDefaultDimensions)
-                    .orElse(new Dimension2D(640, 480));
-            scene.getWindow().setWidth(dimension2D.getWidth());
-            scene.getWindow().setHeight(dimension2D.getHeight());
-        }
+    if (Platform.isDesktop()) {
+      Dimension2D dimension2D =
+          DisplayService.create()
+              .map(DisplayService::getDefaultDimensions)
+              .orElse(new Dimension2D(640, 480));
+      scene.getWindow().setWidth(dimension2D.getWidth());
+      scene.getWindow().setHeight(dimension2D.getHeight());
     }
+  }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+  public static void main(String[] args) {
+    launch(args);
+  }
 }
