@@ -2,42 +2,47 @@
 
 This project is in its early stages and by far not usable at the moment.
 
-## Development
+## Generated Documentation
 
-Useful documentation:
+This Gluon Client sample was generated from https://start.gluon.io
 
-* [Elasticsearch Client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/master/java-rest-high-getting-started-maven.html)
-* [Quarkus RESTEasy JSON-B](https://quarkus.io/guides/rest-json)
-* [Quarkus Hibernate Validator](https://quarkus.io/guides/validation)
-* [Quarkus RESTEasy Qute](https://quarkus.io/guides/qute)
+### Basic Requirements
 
-## Building and running
+A list of the basic requirements can be found online in the [Gluon Client documentation](https://docs.gluonhq.com/client/#_requirements).
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+### Quick instructions
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+#### Run the sample
 
-### Running the application in dev mode
+    mvn javafx:run
 
-You can run your application in dev mode that enables live coding using:
-```
-./mvnw quarkus:dev
-```
+#### Run the sample as a native image
 
-### Packaging and running the application
+    mvn client:build client:run
 
-The application can be packaged using `./mvnw package`.
-It produces the `geld-1.0.0-SNAPSHOT-runner.jar` file in the `/target` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/lib` directory.
+#### Run the sample as a native android image
 
-The application is now runnable using `java -jar target/geld-1.0.0-SNAPSHOT-runner.jar`.
+    mvn -Pandroid client:build client:package client:install client:run
 
-### Creating a native executable
+#### Run the sample as a native iOS image
 
-You can create a native executable using: `./mvnw package -Pnative`.
+    mvn -Pios client:build client:package client:install client:run
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: `./mvnw package -Pnative -Dquarkus.native.container-build=true`.
+### Selected features
 
-You can then execute your native executable with: `./target/geld-1.0.0-SNAPSHOT-runner`
+This is a list of all the features that were selected when creating the sample:
 
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/building-native-image.
+#### JavaFX 15.0.1 Modules
+
+- javafx-base
+- javafx-graphics
+- javafx-controls
+
+#### Gluon Features
+
+- Glisten: build platform independent user interfaces
+- Glisten Afterburner: minimalistic dependency injection
+- Attach display
+- Attach lifecycle
+- Attach statusbar
+- Attach storage
