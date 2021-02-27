@@ -3,12 +3,10 @@ package de.fxnn.geld.io.mt940;
 import java.io.IOException;
 import java.io.PushbackReader;
 import java.io.Reader;
-import java.io.StringReader;
 import java.nio.CharBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
-public class Mt940Parser {
+/** Consumes raw MT940 character data and parses it into {@link Mt940RawField} instances. */
+public class Mt940RawFieldParser {
 
   private static final int BUFFER_SIZE = 10240;
   private static final char END_OF_MESSAGE = '-';
@@ -20,7 +18,7 @@ public class Mt940Parser {
   private final PushbackReader reader;
   private final CharBuffer buf;
 
-  public Mt940Parser(Reader reader) {
+  public Mt940RawFieldParser(Reader reader) {
     this.reader = new PushbackReader(reader);
     this.buf = CharBuffer.allocate(BUFFER_SIZE);
   }
@@ -32,7 +30,7 @@ public class Mt940Parser {
     return nextChar >= 0 && nextChar != END_OF_MESSAGE && nextChar != LINE_BREAK;
   }
 
-  public Mt940RawField readField() throws IOException {
+  public Mt940RawField next() throws IOException {
     int firstChar = reader.read();
     // HINT: should either be '{' or ':'
 
@@ -46,7 +44,7 @@ public class Mt940Parser {
 
   private CharBuffer bufferUntilEndOfField(int firstChar) throws IOException {
     if (firstChar == BEGIN_OF_BLOCK) {
-      bufferUntil(Mt940Parser.END_OF_BLOCK);
+      bufferUntil(Mt940RawFieldParser.END_OF_BLOCK);
       return buf;
     }
 
@@ -75,14 +73,5 @@ public class Mt940Parser {
       }
       buf.put((char) nextChar);
     }
-  }
-
-  public static List<Mt940RawField> parse(String data) throws IOException {
-    var parser = new Mt940Parser(new StringReader(data));
-    var result = new ArrayList<Mt940RawField>();
-    while (parser.hasNext()) {
-      result.add(parser.readField());
-    }
-    return result;
   }
 }

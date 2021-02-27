@@ -7,10 +7,11 @@ import lombok.Value;
  *     description</a>
  */
 @Value
-public class Mt940RawField {
+public class Mt940RawField implements Mt940Field {
 
-  /** Identifier of the field as given by spec. Defines how to parse the {@link #content}. */
-  private String tag;
-  /** Raw data contained in the field. */
-  private String content;
+  /** Identifier of the field as given by spec. Defines how to parse the {@link #rawContent}. */
+  String tag;
+
+  /** Raw data as given by the MT940 source. */
+  String rawContent;
 }
