@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Currency;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -36,23 +37,43 @@ class Mt940FieldParserTest {
     var mt940Case = Mt940Case.load("exampleSwiftMt940Domestic1");
     var sut = createSut(mt940Case);
 
-    assertTrue(sut.hasNext());
-    var field = sut.next();
-    assertEquals("1", field.getTag());
+    var field = assertHasNext(sut);
+    assertFieldIsSimple(field, "1");
 
-    assertTrue(sut.hasNext());
-    field = sut.next();
-    assertEquals("2", field.getTag());
+    field = assertHasNext(sut);
+    assertFieldIsSimple(field, "2");
 
-    assertTrue(sut.hasNext());
-    field = sut.next();
-    assertEquals("20", field.getTag());
+    field = assertHasNext(sut);
+    assertFieldIsSimple(field, "20");
 
+    field = assertHasNext(sut);
+    var accountField = assertFieldIsOfType(field, "25", Mt940AccountField.class);
+    assertEquals("BPHKPLPK/320000546101", accountField.getAccountNumber());
+
+    field = assertHasNext(sut);
+    assertFieldIsSimple(field, "28C");
+
+    field = assertHasNext(sut);
+    var balanceField = assertFieldIsOfType(field, "60F", Mt940BalanceField.class);
+    assertEquals(Currency.getInstance("PLN"), balanceField.getCurrency());
+    assertEquals(4000000, balanceField.getAmount());
+  }
+
+  private Mt940Field assertHasNext(Mt940FieldParser sut) throws IOException {
     assertTrue(sut.hasNext());
-    field = sut.next();
-    assertEquals("25", field.getTag());
-    assertThat(field, is(instanceOf(Mt940AccountField.class)));
-    assertEquals("BPHKPLPK/320000546101", ((Mt940AccountField) field).getAccountNumber());
+    return sut.next();
+  }
+
+  private <T extends Mt940Field> T assertFieldIsOfType(
+      Mt940Field field, String expectedTag, Class<T> expectedType) {
+    assertEquals(expectedTag, field.getTag());
+    assertThat(field, is(instanceOf(expectedType)));
+    return expectedType.cast(field);
+  }
+
+  private void assertFieldIsSimple(Mt940Field field, String expectedTag) {
+    assertEquals(expectedTag, field.getTag());
+    assertThat(field, is(instanceOf(SimpleMt940Field.class)));
   }
 
   private Mt940FieldParser createSut(Mt940Case mt940Case) {
