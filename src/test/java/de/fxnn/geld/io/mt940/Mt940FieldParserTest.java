@@ -6,10 +6,13 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.fxnn.geld.io.mt940.Mt940TransactionField.FundsCode;
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.LocalDate;
 import java.util.Currency;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -57,6 +60,15 @@ class Mt940FieldParserTest {
     var balanceField = assertFieldIsOfType(field, "60F", Mt940BalanceField.class);
     assertEquals(Currency.getInstance("PLN"), balanceField.getCurrency());
     assertEquals(4000000, balanceField.getAmount());
+
+    field = assertHasNext(sut);
+    var transactionField = assertFieldIsOfType(field, "61", Mt940TransactionField.class);
+    assertEquals(LocalDate.of(2003, 10, 20), transactionField.getDate());
+    assertEquals(LocalDate.of(2003, 10, 20), transactionField.getEntryDate());
+    assertEquals(FundsCode.CREDIT, transactionField.getFundsCode());
+    assertEquals(20_000_00L, transactionField.getAmount());
+    assertNull(transactionField.getReference()); // actually NONREF, which is just the default
+    assertEquals("Card transaction", transactionField.getDescription());
   }
 
   private Mt940Field assertHasNext(Mt940FieldParser sut) throws IOException {
