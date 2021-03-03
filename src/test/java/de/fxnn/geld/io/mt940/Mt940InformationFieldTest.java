@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class Mt940InformationFieldTest {
@@ -50,6 +51,7 @@ class Mt940InformationFieldTest {
     assertEquals("KREDITKARTEN-ABR.XVOM 18.11 447595XXXXXX7209     106,75", sut.getReferenceText());
   }
 
+  @Disabled
   @Test
   void exampleSwiftMt940Sparkasse1_2() {
     var sut =
