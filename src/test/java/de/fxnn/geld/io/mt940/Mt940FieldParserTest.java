@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -69,6 +70,28 @@ class Mt940FieldParserTest {
     assertEquals(20_000_00L, transactionField.getAmount());
     assertNull(transactionField.getReference()); // actually NONREF, which is just the default
     assertEquals("Card transaction", transactionField.getDescription());
+
+    field = assertHasNext(sut);
+    var informationField = assertFieldIsOfType(field, "86", Mt940InformationField.class);
+    assertEquals("020", informationField.getGvcCode());
+    assertTrue(informationField.isDomesticTransfer());
+    assertFalse(informationField.isSepaTransfer());
+    assertFalse(informationField.isInternationalTransfer());
+    assertFalse(informationField.isUnstructuredContent());
+    assertEquals("Wyplata-(dysp/przel)", informationField.getTransactionDescription());
+    assertEquals(
+        "08106000760000777777777777 15617 "
+            + "INFO INFO INFO INFO INFO INFO 1 END "
+            + "INFO INFO INFO INFO INFOINFO 2 END "
+            + "ZAPLATA ZA FABRYKATY DO TUB"
+            + " - 200 S ZTUK, TRANZYSTORY- "
+            + "300 SZT GR544 I OPORNIKI-5 "
+            + "00 SZT GTX847 FAKTURA 333/2 003.",
+        informationField.getReferenceText());
+    assertEquals("10600076", informationField.getBeneficiaryBankCode());
+    assertEquals("0000777777777777", informationField.getBeneficiaryAccountNumber());
+    assertEquals("HUTA SZKLA TOPIC ULPRZEMY SLOWA 67 32-669 WROCLAW", informationField.getBeneficiaryName());
+    assertEquals("PL08106000760000777777777777", informationField.getIban());
   }
 
   private Mt940Field assertHasNext(Mt940FieldParser sut) throws IOException {

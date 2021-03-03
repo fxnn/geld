@@ -26,6 +26,12 @@ public enum Mt940FieldType {
     public Mt940Field create(Mt940RawField rawField) {
       return Mt940TransactionField.of(rawField);
     }
+  },
+  INFORMATION("86") {
+    @Override
+    public Mt940Field create(Mt940RawField rawField) {
+      return Mt940InformationField.of(rawField);
+    }
   };
 
   private static final Map<String, Mt940FieldType> BY_TAG = createByTagMap();

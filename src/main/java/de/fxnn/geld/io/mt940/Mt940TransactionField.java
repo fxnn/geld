@@ -15,7 +15,8 @@ public class Mt940TransactionField extends SimpleMt940Field {
   private static final Pattern PATTERN =
       Pattern.compile(
           "^(\\d{2})(\\d{4})(\\d{4})"
-              + "([A-Z]{1,2})"
+              + "(C|D|RC|RD)"
+              + "[A-Z]?" // Currency, the last character of the ISO4217 code
               + "([0-9,]{1,15})"
               + "[A-Z][A-Z0-9]{3}" // "Transaction Code", type of transaction, seemingly
               // bank-specific
