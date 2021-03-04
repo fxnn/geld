@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class Mt940InformationFieldTest {
@@ -51,7 +50,6 @@ class Mt940InformationFieldTest {
     assertEquals("KREDITKARTEN-ABR.XVOM 18.11 447595XXXXXX7209     106,75", sut.getReferenceText());
   }
 
-  @Disabled
   @Test
   void exampleSwiftMt940Sparkasse1_2() {
     var sut =
@@ -76,10 +74,58 @@ class Mt940InformationFieldTest {
     assertEquals("123456789012345678901212345", sut.getSepaEndToEndReference());
     assertEquals("0123456789012345678890", sut.getSepaMandateReference());
     assertEquals("012345678901234567", sut.getSepaCreditorId());
-    assertEquals("012345678901234567890112345 REWE SAGT DANKE. 67890123", sut.getSepaReferenceText());
+    assertEquals(
+        "012345678901234567890112345 REWE SAGT DANKE. 67890123", sut.getSepaReferenceText());
     assertEquals("ABCDEFGH", sut.getBeneficiaryBankCode());
     assertEquals("0123456789012345678901", sut.getBeneficiaryAccountNumber());
     assertEquals("REWE Berlin/Friede", sut.getBeneficiaryName());
+  }
+
+  @Test
+  void exampleSwiftMt940Sparkasse1_3() {
+    var sut =
+        createSut(
+            "106?00AUSZAHLUNG?109123?20SVWZ+2016-11-25T01.02.03 Ka?21rte9"
+                + "2016-12?22ABWA+123 456789//Berliner S?23parkasse/DE?30BELADEBEXXX"
+                + "?31DE01234567890123456789?32Berliner Sparkasse?34123");
+    assertFalse(sut.isDomesticTransfer());
+    assertTrue(sut.isSepaTransfer());
+    assertFalse(sut.isInternationalTransfer());
+    assertFalse(sut.isUnstructuredContent());
+    assertEquals("AUSZAHLUNG", sut.getTransactionDescription());
+    assertEquals(
+        "SVWZ+2016-11-25T01.02.03 Ka rte92016-12 "
+            + "ABWA+123 456789//Berliner S parkasse/DE",
+        sut.getReferenceText());
+    assertEquals("2016-11-25T01.02.03 Karte92016-12", sut.getSepaReferenceText());
+    assertEquals("123 456789//Berliner Sparkasse/DE", sut.getSepaUltimatePrincipal());
+    assertEquals("BELADEBEXXX", sut.getBeneficiaryBankCode());
+    assertEquals("DE01234567890123456789", sut.getBeneficiaryAccountNumber());
+    assertEquals("Berliner Sparkasse", sut.getBeneficiaryName());
+  }
+
+  @Test
+  void exampleSwiftMt940Sparkasse1_4() {
+    var sut =
+        createSut(
+            "106?00KARTENZAHLUNG?101234?20SVWZ+2016-11-25T10.11.12 Ka?21rt"
+                + "e9 2016-11?22ABWA+TK Maxx Berlin Schoene?23berg//Berlin/DE?30DRES"
+                + "DEFF300?31DE01234567890123456789?32TK MAXX BERLIN SCHOE BERLIN?34"
+                + "012");
+    assertFalse(sut.isDomesticTransfer());
+    assertTrue(sut.isSepaTransfer());
+    assertFalse(sut.isInternationalTransfer());
+    assertFalse(sut.isUnstructuredContent());
+    assertEquals("KARTENZAHLUNG", sut.getTransactionDescription());
+    assertEquals(
+        "SVWZ+2016-11-25T10.11.12 Ka rte9 2016-11 "
+            + "ABWA+TK Maxx Berlin Schoene berg//Berlin/DE",
+        sut.getReferenceText());
+    assertEquals("2016-11-25T10.11.12 Karte9 2016-11", sut.getSepaReferenceText());
+    assertEquals("TK Maxx Berlin Schoeneberg//Berlin/DE", sut.getSepaUltimatePrincipal());
+    assertEquals("DRESDEFF300", sut.getBeneficiaryBankCode());
+    assertEquals("DE01234567890123456789", sut.getBeneficiaryAccountNumber());
+    assertEquals("TK MAXX BERLIN SCHOE BERLIN", sut.getBeneficiaryName());
   }
 
   private Mt940InformationField createSut(String rawContent) {

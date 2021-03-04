@@ -15,7 +15,7 @@ public enum Mt940FieldType {
       return Mt940AccountField.of(rawField);
     }
   },
-  BALANCE("60F") {
+  OPENING_BALANCE("60F") {
     @Override
     public Mt940Field create(Mt940RawField rawField) {
       return Mt940BalanceField.of(rawField);
@@ -31,6 +31,12 @@ public enum Mt940FieldType {
     @Override
     public Mt940Field create(Mt940RawField rawField) {
       return Mt940InformationField.of(rawField);
+    }
+  },
+  CLOSING_BALANCE("62F") {
+    @Override
+    public Mt940Field create(Mt940RawField rawField) {
+      return Mt940BalanceField.of(rawField);
     }
   };
 

@@ -13,18 +13,13 @@ public class Mt940InformationField extends SimpleMt940Field {
 
   private static final Pattern GVC_PATTERN = Pattern.compile("(\\d{3}).*");
   private static final Pattern SUBFIELD_PATTERN = Pattern.compile("\\?(\\d{2})([^?]+)");
+  private static final Pattern SEPA_FIELD_PREFIX_PATTERN = Pattern.compile("([A-Z]{4})\\+(.*)");
   private static final String SUBFIELD_TRANSACTION_DESCRIPTION = "00";
   private static final String SUBFIELD_BENEFICIARY_BANK_CODE = "30";
   private static final String SUBFIELD_BENEFICIARY_ACCOUNT_NUMBER = "31";
   private static final String SUBFIELD_IBAN = "38";
-  private static final String SEPA_END_TO_END_REFERENCE = "EREF+";
-  private static final String SEPA_CUSTOMER_REFERENCE = "KREF+";
-  private static final String SEPA_MANDATE_REFERENCE = "MREF+";
-  private static final String SEPA_CREDITOR_ID = "CRED+";
-  private static final String SEPA_DEBITOR_ID = "DEBT+";
-  private static final String SEPA_REFERENCE_TEXT = "SVWZ+";
-  private static final String SEPA_PAYER = "ABWA+";
-  private static final String SEPA_BENEFICIARY = "ABWE+";
+  public static final int FIRST_REFERENCE_TEXT_SUBFIELD = 20;
+  public static final int LAST_REFERENCE_TEXT_SUBFIELD = 29;
 
   /**
    * Code for the type of transaction.
@@ -36,11 +31,17 @@ public class Mt940InformationField extends SimpleMt940Field {
   String gvcCode;
 
   Map<String, String> subfieldContents;
+  Map<Mt940SepaField, String> sepaFieldContents;
 
-  private Mt940InformationField(String tag, String gvcCode, Map<String, String> subfieldContents) {
+  private Mt940InformationField(
+      String tag,
+      String gvcCode,
+      Map<String, String> subfieldContents,
+      Map<Mt940SepaField, String> sepaFieldContents) {
     super(tag);
     this.gvcCode = gvcCode;
     this.subfieldContents = subfieldContents;
+    this.sepaFieldContents = sepaFieldContents;
   }
 
   public boolean isDomesticTransfer() {
@@ -64,7 +65,7 @@ public class Mt940InformationField extends SimpleMt940Field {
   }
 
   public String getReferenceText() {
-    return getJoinedSubfieldContents(20, 29);
+    return getJoinedSubfieldContents(FIRST_REFERENCE_TEXT_SUBFIELD, LAST_REFERENCE_TEXT_SUBFIELD);
   }
 
   public String getBeneficiaryBankCode() {
@@ -72,17 +73,11 @@ public class Mt940InformationField extends SimpleMt940Field {
   }
 
   public String getBeneficiaryAccountNumber() {
-    if (isDomesticTransfer()) {
-      return getSubfieldContents(SUBFIELD_BENEFICIARY_ACCOUNT_NUMBER);
-    }
-    return null;
+    return getSubfieldContents(SUBFIELD_BENEFICIARY_ACCOUNT_NUMBER);
   }
 
   public String getBeneficiaryName() {
-    if (isDomesticTransfer()) {
-      return getJoinedSubfieldContents(32, 33);
-    }
-    return null;
+    return getJoinedSubfieldContents(32, 33);
   }
 
   public String getIban() {
@@ -90,19 +85,35 @@ public class Mt940InformationField extends SimpleMt940Field {
   }
 
   public String getSepaEndToEndReference() {
-    return null;
+    return getSepaFieldContents(Mt940SepaField.END_TO_END_REFERENCE);
+  }
+
+  public String getSepaCustomerReference() {
+    return getSepaFieldContents(Mt940SepaField.CUSTOMER_REFERENCE);
   }
 
   public String getSepaMandateReference() {
-    return null;
+    return getSepaFieldContents(Mt940SepaField.MANDATE_REFERENCE);
   }
 
   public String getSepaCreditorId() {
-    return null;
+    return getSepaFieldContents(Mt940SepaField.CREDITOR_ID);
+  }
+
+  public String getSepaDebitorId() {
+    return getSepaFieldContents(Mt940SepaField.DEBITOR_ID);
   }
 
   public String getSepaReferenceText() {
-    return null;
+    return getSepaFieldContents(Mt940SepaField.REFERENCE_TEXT);
+  }
+
+  public String getSepaUltimatePrincipal() {
+    return getSepaFieldContents(Mt940SepaField.ULTIMATE_PRINCIPAL);
+  }
+
+  public String getSepaUltimateBeneficiary() {
+    return getSepaFieldContents(Mt940SepaField.ULTIMATE_BENEFICIARY);
   }
 
   private String getJoinedSubfieldContents(int firstSubfield, int lastSubfield) {
@@ -127,14 +138,53 @@ public class Mt940InformationField extends SimpleMt940Field {
     return subfieldContents.get(subfieldNumber);
   }
 
-  public static Mt940InformationField of(Mt940RawField rawField) {
-    var gvcMatcher = GVC_PATTERN.matcher(rawField.getRawContent());
-    if (!gvcMatcher.matches()) {
-      throw new IllegalArgumentException(
-          "No valid field contents: '" + rawField.getRawContent() + "'");
-    }
-    var gvcCode = gvcMatcher.group(1);
+  private String getSepaFieldContents(Mt940SepaField sepaField) {
+    return sepaFieldContents.get(sepaField);
+  }
 
+  public static Mt940InformationField of(Mt940RawField rawField) {
+    String gvcCode = parseGvcCode(rawField);
+
+    var subfieldContents = parseSubfieldContents(rawField);
+    var sepaFieldContents = parseSepaFieldContents(subfieldContents);
+
+    return new Mt940InformationField(
+        rawField.getTag(), gvcCode, subfieldContents, sepaFieldContents);
+  }
+
+  private static Map<Mt940SepaField, String> parseSepaFieldContents(
+      Map<String, String> subfieldContents) {
+    var sepaFieldContents = new HashMap<Mt940SepaField, String>();
+    Mt940SepaField sepaField = null;
+    for (int subfield = FIRST_REFERENCE_TEXT_SUBFIELD;
+        subfield <= LAST_REFERENCE_TEXT_SUBFIELD;
+        subfield++) {
+      var contents = subfieldContents.get(Integer.toString(subfield));
+      if (contents == null) {
+        sepaField = null;
+        continue;
+      }
+
+      var matcher = SEPA_FIELD_PREFIX_PATTERN.matcher(contents);
+      if (matcher.matches()) {
+        var prefix = matcher.group(1);
+        var rest = matcher.group(2);
+        sepaField = Mt940SepaField.ofPrefix(prefix).orElse(null);
+        if (sepaField != null) {
+          sepaFieldContents.put(sepaField, rest);
+          continue;
+        }
+      }
+
+      if (sepaField != null) {
+        var previous = sepaFieldContents.get(sepaField);
+        sepaFieldContents.put(sepaField, previous + contents);
+      }
+    }
+    return sepaFieldContents;
+  }
+
+  private static Map<String, String> parseSubfieldContents(Mt940RawField rawField) {
     var subfieldContents = new HashMap<String, String>();
     var subfieldMatcher = SUBFIELD_PATTERN.matcher(rawField.getRawContent());
     while (subfieldMatcher.find()) {
@@ -142,7 +192,15 @@ public class Mt940InformationField extends SimpleMt940Field {
       var contents = subfieldMatcher.group(2);
       subfieldContents.put(code, contents);
     }
+    return subfieldContents;
+  }
 
-    return new Mt940InformationField(rawField.getTag(), gvcCode, subfieldContents);
+  private static String parseGvcCode(Mt940RawField rawField) {
+    var gvcMatcher = GVC_PATTERN.matcher(rawField.getRawContent());
+    if (!gvcMatcher.matches()) {
+      throw new IllegalArgumentException(
+          "No valid field contents: '" + rawField.getRawContent() + "'");
+    }
+    return gvcMatcher.group(1);
   }
 }

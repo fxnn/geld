@@ -92,6 +92,23 @@ class Mt940FieldParserTest {
     assertEquals("0000777777777777", informationField.getBeneficiaryAccountNumber());
     assertEquals("HUTA SZKLA TOPIC ULPRZEMY SLOWA 67 32-669 WROCLAW", informationField.getBeneficiaryName());
     assertEquals("PL08106000760000777777777777", informationField.getIban());
+
+    field = assertHasNext(sut);
+    assertFieldIsOfType(field, "61", Mt940TransactionField.class);
+    field = assertHasNext(sut);
+    assertFieldIsOfType(field, "86", Mt940InformationField.class);
+
+    field = assertHasNext(sut);
+    assertFieldIsOfType(field, "61", Mt940TransactionField.class);
+    field = assertHasNext(sut);
+    assertFieldIsOfType(field, "86", Mt940InformationField.class);
+
+    field = assertHasNext(sut);
+    balanceField = assertFieldIsOfType(field, "62F", Mt940BalanceField.class);
+    assertEquals(Currency.getInstance("PLN"), balanceField.getCurrency());
+    assertEquals(5004000, balanceField.getAmount());
+
+    assertFalse(sut.hasNext());
   }
 
   private Mt940Field assertHasNext(Mt940FieldParser sut) throws IOException {
