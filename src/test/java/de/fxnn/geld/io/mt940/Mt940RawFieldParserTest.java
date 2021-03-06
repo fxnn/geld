@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.io.PushbackReader;
 import java.io.StringReader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,7 +21,7 @@ class Mt940RawFieldParserTest {
   @ParameterizedTest
   @MethodSource("de.fxnn.geld.io.mt940.Mt940Case#loadAll")
   void parse(Mt940Case mt940Case) throws IOException {
-    var parser = new Mt940RawFieldParser(new StringReader(mt940Case.getData()));
+    var parser = createSut(mt940Case);
 
     int count = 0;
     while (parser.hasNext()) {
@@ -111,6 +112,6 @@ class Mt940RawFieldParserTest {
   }
 
   private Mt940RawFieldParser createSut(Mt940Case mt940Case) {
-    return new Mt940RawFieldParser(new StringReader(mt940Case.getData()));
+    return new Mt940RawFieldParser(new PushbackReader(new StringReader(mt940Case.getData())));
   }
 }

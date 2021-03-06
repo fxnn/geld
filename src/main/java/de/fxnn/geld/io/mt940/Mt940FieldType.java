@@ -7,33 +7,37 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+/**
+ * Different types of fields in a {@link Mt940Message}. Note, that some, but not all field types are
+ * mentioned here or are implemented as {@link Mt940Field} subclass.
+ */
 public enum Mt940FieldType {
-  TEXT_BLOCK("4"),
-  ACCOUNT("25") {
+  TEXT_BLOCK("4", Mt940MessageArea.HEADER),
+  ACCOUNT("25", Mt940MessageArea.HEADER) {
     @Override
     public Mt940Field create(Mt940RawField rawField) {
       return Mt940AccountField.of(rawField);
     }
   },
-  OPENING_BALANCE("60F") {
+  OPENING_BALANCE("60F", Mt940MessageArea.HEADER) {
     @Override
     public Mt940Field create(Mt940RawField rawField) {
       return Mt940BalanceField.of(rawField);
     }
   },
-  TRANSACTION("61") {
+  TRANSACTION("61", Mt940MessageArea.TRANSACTION) {
     @Override
     public Mt940Field create(Mt940RawField rawField) {
       return Mt940TransactionField.of(rawField);
     }
   },
-  INFORMATION("86") {
+  INFORMATION("86", Mt940MessageArea.TRANSACTION) {
     @Override
     public Mt940Field create(Mt940RawField rawField) {
       return Mt940InformationField.of(rawField);
     }
   },
-  CLOSING_BALANCE("62F") {
+  CLOSING_BALANCE("62F", Mt940MessageArea.FOOTER) {
     @Override
     public Mt940Field create(Mt940RawField rawField) {
       return Mt940BalanceField.of(rawField);
@@ -52,13 +56,19 @@ public enum Mt940FieldType {
   }
 
   private final String tag;
+  private final Mt940MessageArea messageArea;
 
-  Mt940FieldType(String tag) {
+  Mt940FieldType(String tag, Mt940MessageArea messageArea) {
     this.tag = tag;
+    this.messageArea = messageArea;
   }
 
   public String getTag() {
     return tag;
+  }
+
+  public Mt940MessageArea getMessageArea() {
+    return messageArea;
   }
 
   public Mt940Field create(Mt940RawField rawField) {

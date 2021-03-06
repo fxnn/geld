@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.fxnn.geld.io.mt940.Mt940TransactionField.FundsCode;
 import java.io.IOException;
+import java.io.PushbackReader;
 import java.io.StringReader;
 import java.time.LocalDate;
 import java.util.Currency;
@@ -90,7 +91,8 @@ class Mt940FieldParserTest {
         informationField.getReferenceText());
     assertEquals("10600076", informationField.getBeneficiaryBankCode());
     assertEquals("0000777777777777", informationField.getBeneficiaryAccountNumber());
-    assertEquals("HUTA SZKLA TOPIC ULPRZEMY SLOWA 67 32-669 WROCLAW", informationField.getBeneficiaryName());
+    assertEquals(
+        "HUTA SZKLA TOPIC ULPRZEMY SLOWA 67 32-669 WROCLAW", informationField.getBeneficiaryName());
     assertEquals("PL08106000760000777777777777", informationField.getIban());
 
     field = assertHasNext(sut);
@@ -129,6 +131,6 @@ class Mt940FieldParserTest {
   }
 
   private Mt940FieldParser createSut(Mt940Case mt940Case) {
-    return new Mt940FieldParser(new StringReader(mt940Case.getData()));
+    return new Mt940FieldParser(new PushbackReader(new StringReader(mt940Case.getData())));
   }
 }

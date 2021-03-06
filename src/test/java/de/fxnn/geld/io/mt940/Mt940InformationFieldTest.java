@@ -94,8 +94,7 @@ class Mt940InformationFieldTest {
     assertFalse(sut.isUnstructuredContent());
     assertEquals("AUSZAHLUNG", sut.getTransactionDescription());
     assertEquals(
-        "SVWZ+2016-11-25T01.02.03 Ka rte92016-12 "
-            + "ABWA+123 456789//Berliner S parkasse/DE",
+        "SVWZ+2016-11-25T01.02.03 Ka rte92016-12 " + "ABWA+123 456789//Berliner S parkasse/DE",
         sut.getReferenceText());
     assertEquals("2016-11-25T01.02.03 Karte92016-12", sut.getSepaReferenceText());
     assertEquals("123 456789//Berliner Sparkasse/DE", sut.getSepaUltimatePrincipal());
@@ -118,8 +117,7 @@ class Mt940InformationFieldTest {
     assertFalse(sut.isUnstructuredContent());
     assertEquals("KARTENZAHLUNG", sut.getTransactionDescription());
     assertEquals(
-        "SVWZ+2016-11-25T10.11.12 Ka rte9 2016-11 "
-            + "ABWA+TK Maxx Berlin Schoene berg//Berlin/DE",
+        "SVWZ+2016-11-25T10.11.12 Ka rte9 2016-11 " + "ABWA+TK Maxx Berlin Schoene berg//Berlin/DE",
         sut.getReferenceText());
     assertEquals("2016-11-25T10.11.12 Karte9 2016-11", sut.getSepaReferenceText());
     assertEquals("TK Maxx Berlin Schoeneberg//Berlin/DE", sut.getSepaUltimatePrincipal());

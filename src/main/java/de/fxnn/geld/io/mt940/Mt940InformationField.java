@@ -31,13 +31,13 @@ public class Mt940InformationField extends SimpleMt940Field {
   String gvcCode;
 
   Map<String, String> subfieldContents;
-  Map<Mt940SepaField, String> sepaFieldContents;
+  Map<Mt940SepaSubfield, String> sepaFieldContents;
 
   private Mt940InformationField(
       String tag,
       String gvcCode,
       Map<String, String> subfieldContents,
-      Map<Mt940SepaField, String> sepaFieldContents) {
+      Map<Mt940SepaSubfield, String> sepaFieldContents) {
     super(tag);
     this.gvcCode = gvcCode;
     this.subfieldContents = subfieldContents;
@@ -85,35 +85,35 @@ public class Mt940InformationField extends SimpleMt940Field {
   }
 
   public String getSepaEndToEndReference() {
-    return getSepaFieldContents(Mt940SepaField.END_TO_END_REFERENCE);
+    return getSepaFieldContents(Mt940SepaSubfield.END_TO_END_REFERENCE);
   }
 
   public String getSepaCustomerReference() {
-    return getSepaFieldContents(Mt940SepaField.CUSTOMER_REFERENCE);
+    return getSepaFieldContents(Mt940SepaSubfield.CUSTOMER_REFERENCE);
   }
 
   public String getSepaMandateReference() {
-    return getSepaFieldContents(Mt940SepaField.MANDATE_REFERENCE);
+    return getSepaFieldContents(Mt940SepaSubfield.MANDATE_REFERENCE);
   }
 
   public String getSepaCreditorId() {
-    return getSepaFieldContents(Mt940SepaField.CREDITOR_ID);
+    return getSepaFieldContents(Mt940SepaSubfield.CREDITOR_ID);
   }
 
   public String getSepaDebitorId() {
-    return getSepaFieldContents(Mt940SepaField.DEBITOR_ID);
+    return getSepaFieldContents(Mt940SepaSubfield.DEBITOR_ID);
   }
 
   public String getSepaReferenceText() {
-    return getSepaFieldContents(Mt940SepaField.REFERENCE_TEXT);
+    return getSepaFieldContents(Mt940SepaSubfield.REFERENCE_TEXT);
   }
 
   public String getSepaUltimatePrincipal() {
-    return getSepaFieldContents(Mt940SepaField.ULTIMATE_PRINCIPAL);
+    return getSepaFieldContents(Mt940SepaSubfield.ULTIMATE_PRINCIPAL);
   }
 
   public String getSepaUltimateBeneficiary() {
-    return getSepaFieldContents(Mt940SepaField.ULTIMATE_BENEFICIARY);
+    return getSepaFieldContents(Mt940SepaSubfield.ULTIMATE_BENEFICIARY);
   }
 
   private String getJoinedSubfieldContents(int firstSubfield, int lastSubfield) {
@@ -138,7 +138,7 @@ public class Mt940InformationField extends SimpleMt940Field {
     return subfieldContents.get(subfieldNumber);
   }
 
-  private String getSepaFieldContents(Mt940SepaField sepaField) {
+  private String getSepaFieldContents(Mt940SepaSubfield sepaField) {
     return sepaFieldContents.get(sepaField);
   }
 
@@ -152,10 +152,10 @@ public class Mt940InformationField extends SimpleMt940Field {
         rawField.getTag(), gvcCode, subfieldContents, sepaFieldContents);
   }
 
-  private static Map<Mt940SepaField, String> parseSepaFieldContents(
+  private static Map<Mt940SepaSubfield, String> parseSepaFieldContents(
       Map<String, String> subfieldContents) {
-    var sepaFieldContents = new HashMap<Mt940SepaField, String>();
-    Mt940SepaField sepaField = null;
+    var sepaFieldContents = new HashMap<Mt940SepaSubfield, String>();
+    Mt940SepaSubfield sepaField = null;
     for (int subfield = FIRST_REFERENCE_TEXT_SUBFIELD;
         subfield <= LAST_REFERENCE_TEXT_SUBFIELD;
         subfield++) {
@@ -169,7 +169,7 @@ public class Mt940InformationField extends SimpleMt940Field {
       if (matcher.matches()) {
         var prefix = matcher.group(1);
         var rest = matcher.group(2);
-        sepaField = Mt940SepaField.ofPrefix(prefix).orElse(null);
+        sepaField = Mt940SepaSubfield.ofPrefix(prefix).orElse(null);
         if (sepaField != null) {
           sepaFieldContents.put(sepaField, rest);
           continue;

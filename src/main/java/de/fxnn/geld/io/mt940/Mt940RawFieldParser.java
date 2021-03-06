@@ -2,7 +2,6 @@ package de.fxnn.geld.io.mt940;
 
 import java.io.IOException;
 import java.io.PushbackReader;
-import java.io.Reader;
 import java.nio.CharBuffer;
 
 /** Consumes raw MT940 character data and parses it into {@link Mt940RawField} instances. */
@@ -18,8 +17,8 @@ public class Mt940RawFieldParser {
   private final PushbackReader reader;
   private final CharBuffer buf;
 
-  public Mt940RawFieldParser(Reader reader) {
-    this.reader = new PushbackReader(reader);
+  public Mt940RawFieldParser(PushbackReader reader) {
+    this.reader = reader;
     this.buf = CharBuffer.allocate(BUFFER_SIZE);
   }
 
