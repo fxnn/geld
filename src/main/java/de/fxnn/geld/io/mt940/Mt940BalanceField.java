@@ -1,5 +1,6 @@
 package de.fxnn.geld.io.mt940;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Currency;
@@ -28,6 +29,18 @@ public class Mt940BalanceField extends SimpleMt940Field {
     this.date = date;
     this.currency = currency;
     this.amount = amount;
+  }
+
+  public boolean isIntermediate() {
+    return getTag().endsWith("M");
+  }
+
+  public BigDecimal getAmountAsBigDecimal() {
+    var result = new BigDecimal(amount).scaleByPowerOfTen(-2);
+    if (BalanceType.DEBIT == balanceType) {
+      result = result.negate();
+    }
+    return result;
   }
 
   public static Mt940BalanceField of(Mt940RawField rawField) {

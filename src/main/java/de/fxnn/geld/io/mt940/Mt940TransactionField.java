@@ -1,5 +1,6 @@
 package de.fxnn.geld.io.mt940;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -45,7 +46,7 @@ public class Mt940TransactionField extends SimpleMt940Field {
   @Nullable String reference;
   @Nullable String description;
 
-  public Mt940TransactionField(
+  private Mt940TransactionField(
       String tag,
       LocalDate date,
       LocalDate entryDate,
@@ -60,6 +61,14 @@ public class Mt940TransactionField extends SimpleMt940Field {
     this.amount = amount;
     this.reference = reference;
     this.description = description;
+  }
+
+  public BigDecimal getAmountAsBigDecimal() {
+    var result = new BigDecimal(amount).scaleByPowerOfTen(-2);
+    if (FundsCode.DEBIT == fundsCode || FundsCode.REVERSAL_OF_DEBIT == fundsCode) {
+      result = result.negate();
+    }
+    return result;
   }
 
   public static Mt940TransactionField of(Mt940RawField rawField) {

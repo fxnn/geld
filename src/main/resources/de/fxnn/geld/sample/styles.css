@@ -1,4 +1,10 @@
-Label {
-    -fx-font-size: 2em;
-    -fx-text-fill: -primary-swatch-700;
+#TransactionListCellVBox Label {
+    -fx-font-family: "Monaco";
+    -fx-font-size: 0.8em;
+}
+#TransactionListCellVBox Label.positiveAmount {
+    -fx-fill: darkgreen;
+}
+#TransactionListCellVBox Label.negativeAmount {
+    -fx-fill: darkred;
 }

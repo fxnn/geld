@@ -1,10 +1,13 @@
 package de.fxnn.geld.io.mt940;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import de.fxnn.geld.io.mt940.Mt940BalanceField.BalanceType;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Currency;
 import java.util.stream.Stream;
@@ -47,7 +50,7 @@ class Mt940BalanceFieldTest {
   @MethodSource("rawAndParsedValues")
   void success(
       String rawContent, BalanceType balanceType, LocalDate date, Currency currency, long amount) {
-    var sut = Mt940BalanceField.of(new Mt940RawField("60F", rawContent));
+    var sut = createSut(rawContent);
     assertEquals(balanceType, sut.getBalanceType());
     assertEquals(date, sut.getDate());
     assertEquals(currency, sut.getCurrency());
@@ -56,7 +59,34 @@ class Mt940BalanceFieldTest {
 
   @Test
   void illegalContent() {
-    assertThrows(
-        IllegalArgumentException.class, () -> Mt940BalanceField.of(new Mt940RawField("60F", "")));
+    assertThrows(IllegalArgumentException.class, () -> createSut(""));
+  }
+
+  @Test
+  void getAmountAsBigDecimal__positive() {
+    var sut = createSut("C990101EUR567,89");
+    assertEquals(new BigDecimal("567.89"), sut.getAmountAsBigDecimal());
+  }
+
+  @Test
+  void getAmountAsBigDecimal__negative() {
+    var sut = createSut("D990101EUR543,21");
+    assertEquals(new BigDecimal("-543.21"), sut.getAmountAsBigDecimal());
+  }
+
+  @Test
+  void isIntermediate__true() {
+    var sut = Mt940BalanceField.of(new Mt940RawField("60M", "C031002PLN40000,00"));
+    assertTrue(sut.isIntermediate());
+  }
+
+  @Test
+  void isIntermediate__false() {
+    var sut = Mt940BalanceField.of(new Mt940RawField("60F", "C031002PLN40000,00"));
+    assertFalse(sut.isIntermediate());
+  }
+
+  private Mt940BalanceField createSut(String rawContent) {
+    return Mt940BalanceField.of(new Mt940RawField("60F", rawContent));
   }
 }

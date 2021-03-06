@@ -19,7 +19,13 @@ public enum Mt940FieldType {
       return Mt940AccountField.of(rawField);
     }
   },
-  OPENING_BALANCE("60F", Mt940MessageArea.HEADER) {
+  FINAL_OPENING_BALANCE("60F", Mt940MessageArea.HEADER) {
+    @Override
+    public Mt940Field create(Mt940RawField rawField) {
+      return Mt940BalanceField.of(rawField);
+    }
+  },
+  INTERMEDIATE_OPENING_BALANCE("60M", Mt940MessageArea.HEADER) {
     @Override
     public Mt940Field create(Mt940RawField rawField) {
       return Mt940BalanceField.of(rawField);
@@ -37,7 +43,13 @@ public enum Mt940FieldType {
       return Mt940InformationField.of(rawField);
     }
   },
-  CLOSING_BALANCE("62F", Mt940MessageArea.FOOTER) {
+  FINAL_CLOSING_BALANCE("62F", Mt940MessageArea.FOOTER) {
+    @Override
+    public Mt940Field create(Mt940RawField rawField) {
+      return Mt940BalanceField.of(rawField);
+    }
+  },
+  INTERMEDIATE_CLOSING_BALANCE("62M", Mt940MessageArea.FOOTER) {
     @Override
     public Mt940Field create(Mt940RawField rawField) {
       return Mt940BalanceField.of(rawField);

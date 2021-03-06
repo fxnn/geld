@@ -41,6 +41,12 @@
       <version>1.18.16</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <!-- logging -->
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>1.7.28</version>
+    </dependency>
 
     <!-- javafx -->
     <dependency>
