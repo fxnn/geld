@@ -10,8 +10,12 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import lombok.Data;
 
+/**
+ * A model for the whole workspace the application provides. That is, one instance serves as root
+ * (in the sense of a tree structure) to all state of one application instance.
+ */
 @Data
-public class ApplicationModel {
+public class WorkspaceModel {
 
   private final ObservableList<TransactionModel> transactionList =
       FXCollections.observableArrayList();

@@ -4,19 +4,29 @@ import com.gluonhq.attach.display.DisplayService;
 import com.gluonhq.attach.util.Platform;
 import com.gluonhq.charm.glisten.application.MobileApplication;
 import com.gluonhq.charm.glisten.visual.Swatch;
-import de.fxnn.geld.jfx.model.ApplicationModel;
+import de.fxnn.geld.jfx.model.WorkspaceModel;
+import javafx.application.Application;
 import javafx.geometry.Dimension2D;
 import javafx.scene.Scene;
 
 public class Main extends MobileApplication {
 
-  private final ApplicationModel model = new ApplicationModel();
+  private final WorkspaceModel model = new WorkspaceModel();
 
+  /**
+   * Called after application object is constructed, but before JavaFX initialization (no
+   * Stage, Scene, whatsoever).
+   */
   @Override
   public void init() {
     addViewFactory(HOME_VIEW, () -> new TransactionListView(model));
   }
 
+  /**
+   * Called after JavaFX initialization is completed, right on the JavaFX Application Thread.
+   *
+   * <p>This is the {@code MobileApplication} equivalent to {@link Application#start(javafx.stage.Stage)}.
+   */
   @Override
   public void postInit(Scene scene) {
     Swatch.LIGHT_GREEN.assignTo(scene);

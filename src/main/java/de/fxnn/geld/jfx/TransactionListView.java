@@ -9,12 +9,11 @@ import com.gluonhq.charm.glisten.control.FloatingActionButton;
 import com.gluonhq.charm.glisten.control.TextField;
 import com.gluonhq.charm.glisten.mvc.View;
 import com.gluonhq.charm.glisten.visual.MaterialDesignIcon;
-import de.fxnn.geld.jfx.model.ApplicationModel;
+import de.fxnn.geld.jfx.model.WorkspaceModel;
 import de.fxnn.geld.jfx.model.FilterParser;
 import de.fxnn.geld.jfx.model.TransactionModel;
 import java.io.IOException;
 import java.time.LocalDate;
-import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert.AlertType;
@@ -24,11 +23,11 @@ import javafx.stage.FileChooser;
 
 public class TransactionListView extends View {
 
-  private final ApplicationModel applicationModel;
+  private final WorkspaceModel model;
   private final FilterParser filterParser = new FilterParser();
 
-  public TransactionListView(ApplicationModel applicationModel) {
-    this.applicationModel = applicationModel;
+  public TransactionListView(WorkspaceModel model) {
+    this.model = model;
 
     var fab =
         new FloatingActionButton(MaterialDesignIcon.FOLDER_OPEN.text, this::onButtonOpenClick);
@@ -36,7 +35,7 @@ public class TransactionListView extends View {
 
     var listView =
         new CharmListView<TransactionModel, LocalDate>(
-            applicationModel.getFilteredTransactionList());
+            model.getFilteredTransactionList());
     listView.setCellFactory(TransactionListCell::new);
     listView.setHeadersFunction(TransactionModel::getDate);
 
@@ -54,7 +53,7 @@ public class TransactionListView extends View {
 
   private void onFilterTextChanged(
       ObservableValue<? extends String> observable, String oldValue, String newValue) {
-    applicationModel.getFilteredTransactionList().setPredicate(filterParser.parse(newValue));
+    model.getFilteredTransactionList().setPredicate(filterParser.parse(newValue));
   }
 
   private void onButtonOpenClick(ActionEvent event) {
@@ -65,7 +64,7 @@ public class TransactionListView extends View {
     }
 
     try {
-      var count = applicationModel.loadTransactionList(file);
+      var count = model.loadTransactionList(file);
       new Alert(AlertType.INFORMATION, i18n().formatMessage("transaction.load.success", count))
           .showAndWait();
     } catch (IOException ex) {
