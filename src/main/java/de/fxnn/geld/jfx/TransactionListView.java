@@ -6,32 +6,55 @@ import com.gluonhq.charm.glisten.control.Alert;
 import com.gluonhq.charm.glisten.control.AppBar;
 import com.gluonhq.charm.glisten.control.CharmListView;
 import com.gluonhq.charm.glisten.control.FloatingActionButton;
+import com.gluonhq.charm.glisten.control.TextField;
 import com.gluonhq.charm.glisten.mvc.View;
 import com.gluonhq.charm.glisten.visual.MaterialDesignIcon;
 import de.fxnn.geld.jfx.model.ApplicationModel;
+import de.fxnn.geld.jfx.model.FilterParser;
 import de.fxnn.geld.jfx.model.TransactionModel;
-import de.fxnn.geld.sample.TransactionListCell;
 import java.io.IOException;
 import java.time.LocalDate;
+import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 public class TransactionListView extends View {
 
   private final ApplicationModel applicationModel;
+  private final FilterParser filterParser = new FilterParser();
 
   public TransactionListView(ApplicationModel applicationModel) {
     this.applicationModel = applicationModel;
 
-    FloatingActionButton fab =
+    var fab =
         new FloatingActionButton(MaterialDesignIcon.FOLDER_OPEN.text, this::onButtonOpenClick);
     fab.showOn(this);
 
-    CharmListView<TransactionModel, LocalDate> listView =
-        new CharmListView<>(applicationModel.getTransactionList());
+    var listView =
+        new CharmListView<TransactionModel, LocalDate>(
+            applicationModel.getFilteredTransactionList());
     listView.setCellFactory(TransactionListCell::new);
-    setCenter(listView);
+    listView.setHeadersFunction(TransactionModel::getDate);
+
+    var filterField = new TextField();
+    filterField.setPromptText(i18n().message("transaction.filter.prompt"));
+    filterField.textProperty().addListener(this::onFilterTextChanged);
+
+    var vbox = new VBox();
+    vbox.getChildren().add(filterField);
+    vbox.getChildren().add(listView);
+    VBox.setVgrow(listView, Priority.ALWAYS);
+
+    setCenter(vbox);
+  }
+
+  private void onFilterTextChanged(
+      ObservableValue<? extends String> observable, String oldValue, String newValue) {
+    applicationModel.getFilteredTransactionList().setPredicate(filterParser.parse(newValue));
   }
 
   private void onButtonOpenClick(ActionEvent event) {

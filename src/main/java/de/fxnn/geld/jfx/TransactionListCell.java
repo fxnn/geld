@@ -1,4 +1,4 @@
-package de.fxnn.geld.sample;
+package de.fxnn.geld.jfx;
 
 import com.gluonhq.charm.glisten.control.CharmListCell;
 import com.gluonhq.charm.glisten.control.CharmListView;

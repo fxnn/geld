@@ -1,10 +1,9 @@
-package de.fxnn.geld.sample;
+package de.fxnn.geld.jfx;
 
 import com.gluonhq.attach.display.DisplayService;
 import com.gluonhq.attach.util.Platform;
 import com.gluonhq.charm.glisten.application.MobileApplication;
 import com.gluonhq.charm.glisten.visual.Swatch;
-import de.fxnn.geld.jfx.TransactionListView;
 import de.fxnn.geld.jfx.model.ApplicationModel;
 import javafx.geometry.Dimension2D;
 import javafx.scene.Scene;

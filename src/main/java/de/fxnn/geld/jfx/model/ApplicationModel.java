@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import lombok.Data;
 
 @Data
@@ -14,6 +15,8 @@ public class ApplicationModel {
 
   private final ObservableList<TransactionModel> transactionList =
       FXCollections.observableArrayList();
+  private final FilteredList<TransactionModel> filteredTransactionList =
+      new FilteredList<>(transactionList, t -> true);
 
   public int loadTransactionList(File file) throws IOException {
     var models =
