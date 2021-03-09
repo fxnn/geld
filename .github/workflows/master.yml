@@ -24,6 +24,9 @@ jobs:
 
     # Maven
 
+    - name: Validate Code Formatting
+      run: mvn --batch-mode spotless:check
+
     - name: Build with Maven
       run: mvn -B package --file pom.xml
       

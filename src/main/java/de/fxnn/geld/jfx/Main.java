@@ -14,8 +14,8 @@ public class Main extends MobileApplication {
   private final WorkspaceModel model = new WorkspaceModel();
 
   /**
-   * Called after application object is constructed, but before JavaFX initialization (no
-   * Stage, Scene, whatsoever).
+   * Called after application object is constructed, but before JavaFX initialization (no Stage,
+   * Scene, whatsoever).
    */
   @Override
   public void init() {
@@ -25,7 +25,8 @@ public class Main extends MobileApplication {
   /**
    * Called after JavaFX initialization is completed, right on the JavaFX Application Thread.
    *
-   * <p>This is the {@code MobileApplication} equivalent to {@link Application#start(javafx.stage.Stage)}.
+   * <p>This is the {@code MobileApplication} equivalent to {@link
+   * Application#start(javafx.stage.Stage)}.
    */
   @Override
   public void postInit(Scene scene) {

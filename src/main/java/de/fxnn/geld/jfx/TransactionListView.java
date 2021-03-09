@@ -9,9 +9,9 @@ import com.gluonhq.charm.glisten.control.FloatingActionButton;
 import com.gluonhq.charm.glisten.control.TextField;
 import com.gluonhq.charm.glisten.mvc.View;
 import com.gluonhq.charm.glisten.visual.MaterialDesignIcon;
-import de.fxnn.geld.jfx.model.WorkspaceModel;
 import de.fxnn.geld.jfx.model.FilterParser;
 import de.fxnn.geld.jfx.model.TransactionModel;
+import de.fxnn.geld.jfx.model.WorkspaceModel;
 import java.io.IOException;
 import java.time.LocalDate;
 import javafx.beans.value.ObservableValue;
@@ -34,8 +34,7 @@ public class TransactionListView extends View {
     fab.showOn(this);
 
     var listView =
-        new CharmListView<TransactionModel, LocalDate>(
-            model.getFilteredTransactionList());
+        new CharmListView<TransactionModel, LocalDate>(model.getFilteredTransactionList());
     listView.setCellFactory(TransactionListCell::new);
     listView.setHeadersFunction(TransactionModel::getDate);
 
