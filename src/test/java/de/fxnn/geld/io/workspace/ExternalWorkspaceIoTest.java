@@ -19,7 +19,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class WorkspaceIoTest {
+class ExternalWorkspaceIoTest {
 
   FileSystem fs;
   Path path;
@@ -43,7 +43,7 @@ class WorkspaceIoTest {
             LocalDate.of(1999, 12, 31));
     var workspace = new ExternalWorkspace(List.of(transaction));
 
-    new WorkspaceIo().store(workspace, path, StandardOpenOption.CREATE);
+    new ExternalWorkspaceIo().store(workspace, path, StandardOpenOption.CREATE);
     var contents = whenReadFile();
 
     assertEquals(
@@ -73,7 +73,7 @@ class WorkspaceIoTest {
                 + "\"date\": \"1999-12-31\""
                 + "}]}");
 
-    var workspace = new WorkspaceIo().load(file);
+    var workspace = new ExternalWorkspaceIo().load(file);
 
     assertNotNull(workspace);
     assertThat(workspace.getTransactionList(), hasSize(1));

@@ -8,10 +8,11 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-public class WorkspaceIo {
+public class ExternalWorkspaceIo {
 
-  public static final DslJson<Object> DSL_JSON =
-      new DslJson<>(new Settings<>().includeServiceLoader(WorkspaceIo.class.getClassLoader()));
+  private static final DslJson<Object> DSL_JSON =
+      new DslJson<>(
+          new Settings<>().includeServiceLoader(ExternalWorkspaceIo.class.getClassLoader()));
 
   public ExternalWorkspace load(Path path) throws IOException {
     try (var is = Files.newInputStream(path, StandardOpenOption.READ)) {
