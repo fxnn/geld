@@ -15,7 +15,7 @@ import lombok.Data;
  * (in the sense of a tree structure) to all state of one application instance.
  */
 @Data
-public class WorkspaceModel {
+public class WorkspaceModel implements Model {
 
   private final ObservableList<TransactionModel> transactionList =
       FXCollections.observableArrayList();
@@ -32,5 +32,10 @@ public class WorkspaceModel {
     transactionList.clear();
     transactionList.addAll(models);
     return models.size();
+  }
+
+  @Override
+  public void updateTransientProperties() {
+    // nothing to do
   }
 }

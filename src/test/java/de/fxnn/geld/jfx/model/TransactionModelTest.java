@@ -16,7 +16,7 @@ class TransactionModelTest {
   void containsAnyLowerCase__matches(String input, String expectedMatchingExpression) {
     var sut = new TransactionModel();
     sut.setReferenceText(input);
-    sut.calculateWords();
+    sut.updateTransientProperties();
 
     assertTrue(sut.containsAnyLowerCase(List.of(expectedMatchingExpression)));
   }

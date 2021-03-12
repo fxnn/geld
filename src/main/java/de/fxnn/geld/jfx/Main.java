@@ -1,17 +1,26 @@
 package de.fxnn.geld.jfx;
 
-import com.gluonhq.attach.display.DisplayService;
 import com.gluonhq.attach.util.Platform;
 import com.gluonhq.charm.glisten.application.MobileApplication;
 import com.gluonhq.charm.glisten.visual.Swatch;
+import de.fxnn.geld.io.workspace.WorkspaceModelIo;
 import de.fxnn.geld.jfx.model.WorkspaceModel;
+import java.io.IOException;
+import java.nio.file.Files;
 import javafx.application.Application;
-import javafx.geometry.Dimension2D;
 import javafx.scene.Scene;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.SystemUtils;
 
+@Slf4j
 public class Main extends MobileApplication {
 
-  private final WorkspaceModel model = new WorkspaceModel();
+  private final WorkspaceModel model;
+  private final ApplicationMetadata applicationMetadata = ApplicationMetadata.create();
+
+  public Main() {
+    this.model = loadWorkspaceModel();
+  }
 
   /**
    * Called after application object is constructed, but before JavaFX initialization (no Stage,
@@ -19,7 +28,7 @@ public class Main extends MobileApplication {
    */
   @Override
   public void init() {
-    addViewFactory(HOME_VIEW, () -> new TransactionListView(model));
+    addViewFactory(HOME_VIEW, () -> new TransactionListView(model, applicationMetadata));
   }
 
   /**
@@ -31,16 +40,36 @@ public class Main extends MobileApplication {
   @Override
   public void postInit(Scene scene) {
     Swatch.LIGHT_GREEN.assignTo(scene);
-    scene.getStylesheets().add(Main.class.getResource("styles.css").toExternalForm());
+
+    loadStylesheetResource(scene, "styles.css");
+    if (SystemUtils.IS_OS_MAC_OSX) {
+      loadStylesheetResource(scene, "macos.css");
+    }
 
     if (Platform.isDesktop()) {
-      Dimension2D dimension2D =
-          DisplayService.create()
-              .map(DisplayService::getDefaultDimensions)
-              .orElse(new Dimension2D(640, 480));
-      scene.getWindow().setWidth(dimension2D.getWidth());
-      scene.getWindow().setHeight(dimension2D.getHeight());
+      scene.getWindow().setWidth(640);
+      scene.getWindow().setHeight(480);
     }
+  }
+
+  private void loadStylesheetResource(Scene scene, String resourceName) {
+    scene.getStylesheets().add(Main.class.getResource(resourceName).toExternalForm());
+  }
+
+  private WorkspaceModel loadWorkspaceModel() {
+    try {
+      var workspaceFile =
+          applicationMetadata
+              .getAppConfigPath()
+              .resolve(WorkspaceSaveAction.WORKSPACE_JSON_FILENAME);
+      if (Files.exists(workspaceFile)) {
+        log.info("Loading Workspace Model from {}", workspaceFile);
+        return new WorkspaceModelIo().load(workspaceFile);
+      }
+    } catch (IOException ex) {
+      log.warn("Failed to load Workspace Model", ex);
+    }
+    return new WorkspaceModel();
   }
 
   public static void main(String[] args) {

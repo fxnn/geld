@@ -2,7 +2,6 @@ package de.fxnn.geld.jfx;
 
 import static de.fxnn.geld.system.I18n.i18n;
 
-import com.gluonhq.charm.glisten.control.Alert;
 import com.gluonhq.charm.glisten.control.AppBar;
 import com.gluonhq.charm.glisten.control.CharmListView;
 import com.gluonhq.charm.glisten.control.FloatingActionButton;
@@ -12,25 +11,24 @@ import com.gluonhq.charm.glisten.visual.MaterialDesignIcon;
 import de.fxnn.geld.jfx.model.FilterParser;
 import de.fxnn.geld.jfx.model.TransactionModel;
 import de.fxnn.geld.jfx.model.WorkspaceModel;
-import java.io.IOException;
 import java.time.LocalDate;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 
 public class TransactionListView extends View {
 
   private final WorkspaceModel model;
   private final FilterParser filterParser = new FilterParser();
+  private final FileOpenAction fileOpenAction;
+  private final WorkspaceSaveAction workspaceSaveAction;
 
-  public TransactionListView(WorkspaceModel model) {
+  public TransactionListView(WorkspaceModel model, ApplicationMetadata applicationMetadata) {
     this.model = model;
+    this.workspaceSaveAction = new WorkspaceSaveAction(model, applicationMetadata);
+    this.fileOpenAction = new FileOpenAction(this, model, workspaceSaveAction);
 
-    var fab =
-        new FloatingActionButton(MaterialDesignIcon.FOLDER_OPEN.text, this::onButtonOpenClick);
+    var fab = new FloatingActionButton(MaterialDesignIcon.FOLDER_OPEN.text, fileOpenAction);
     fab.showOn(this);
 
     var listView =
@@ -53,26 +51,6 @@ public class TransactionListView extends View {
   private void onFilterTextChanged(
       ObservableValue<? extends String> observable, String oldValue, String newValue) {
     model.getFilteredTransactionList().setPredicate(filterParser.parse(newValue));
-  }
-
-  private void onButtonOpenClick(ActionEvent event) {
-    var fileChooser = new FileChooser();
-    var file = fileChooser.showOpenDialog(getScene().getWindow());
-    if (file == null) {
-      return;
-    }
-
-    try {
-      var count = model.loadTransactionList(file);
-      new Alert(AlertType.INFORMATION, i18n().formatMessage("transaction.load.success", count))
-          .showAndWait();
-    } catch (IOException ex) {
-      var alert =
-          new Alert(
-              AlertType.ERROR,
-              i18n().formatMessage("transaction.load.failed", file.getAbsolutePath()));
-      alert.showAndWait();
-    }
   }
 
   @Override

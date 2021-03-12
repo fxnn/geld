@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 import lombok.Data;
 
 @Data
-public class TransactionModel {
+public class TransactionModel implements Model {
 
   private BigDecimal balanceBefore;
   private BigDecimal amount;
@@ -24,9 +24,19 @@ public class TransactionModel {
   private String referenceText;
   private String beneficiary;
   private LocalDate date;
+
+  /**
+   * Transient property containing all words in all other textual properties. Used for full-text
+   * search.
+   */
   private final Set<String> lowercaseWords = new HashSet<>();
 
-  void calculateWords() {
+  @Override
+  public void updateTransientProperties() {
+    calculateWords();
+  }
+
+  private void calculateWords() {
     lowercaseWords.clear();
     Stream.of(transactionDescription, referenceText, beneficiary)
         .filter(Objects::nonNull)
@@ -66,7 +76,7 @@ public class TransactionModel {
               .orElse(infoField.getBeneficiaryName()));
       balanceBefore = balanceBefore.add(txField.getAmountAsBigDecimal());
       txView.setBalanceAfter(balanceBefore);
-      txView.calculateWords();
+      txView.updateTransientProperties();
 
       result.add(txView);
     }

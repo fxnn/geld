@@ -17,16 +17,28 @@ public interface ExternalWorkspaceMapper {
 
   ExternalWorkspace toExternal(WorkspaceModel internal);
 
+  default WorkspaceModel toInternal(ExternalWorkspace external) {
+    var result = toInternalWithoutTransientProperties(external);
+    result.updateTransientProperties();
+    return result;
+  }
+
   @Mapping(target = "filteredTransactionList", ignore = true)
-  WorkspaceModel toInternal(ExternalWorkspace external);
+  WorkspaceModel toInternalWithoutTransientProperties(ExternalWorkspace external);
 
   default ObservableList<TransactionModel> toInternalTransaction(
       List<ExternalTransaction> external) {
     return FXCollections.observableList(external.stream().map(this::toInternal).collect(toList()));
   }
 
+  default TransactionModel toInternal(ExternalTransaction external) {
+    var result = toInternalWithoutTransientProperties(external);
+    result.updateTransientProperties();
+    return result;
+  }
+
   @Mapping(target = "lowercaseWords", ignore = true)
-  TransactionModel toInternal(ExternalTransaction external);
+  TransactionModel toInternalWithoutTransientProperties(ExternalTransaction external);
 
   static ExternalWorkspaceMapper create() {
     return Mappers.getMapper(ExternalWorkspaceMapper.class);
