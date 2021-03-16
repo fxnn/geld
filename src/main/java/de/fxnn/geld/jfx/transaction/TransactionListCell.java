@@ -1,4 +1,4 @@
-package de.fxnn.geld.jfx;
+package de.fxnn.geld.jfx.transaction;
 
 import com.gluonhq.charm.glisten.control.CharmListCell;
 import com.gluonhq.charm.glisten.control.CharmListView;

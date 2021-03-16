@@ -5,6 +5,8 @@ import com.gluonhq.charm.glisten.application.MobileApplication;
 import com.gluonhq.charm.glisten.visual.Swatch;
 import de.fxnn.geld.io.workspace.WorkspaceModelIo;
 import de.fxnn.geld.jfx.model.WorkspaceModel;
+import de.fxnn.geld.jfx.transaction.CreateLabelView;
+import de.fxnn.geld.jfx.transaction.ShowTransactionView;
 import java.io.IOException;
 import java.nio.file.Files;
 import javafx.application.Application;
@@ -28,7 +30,9 @@ public class Main extends MobileApplication {
    */
   @Override
   public void init() {
-    addViewFactory(HOME_VIEW, () -> new TransactionListView(model, applicationMetadata));
+    addViewFactory(
+        ShowTransactionView.VIEW_NAME, () -> new ShowTransactionView(model, applicationMetadata));
+    addViewFactory(CreateLabelView.VIEW_NAME, () -> new CreateLabelView());
   }
 
   /**

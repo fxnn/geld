@@ -1,3 +1,6 @@
 #TransactionListCellVBox Label {
   -fx-font-family: "Monaco";
 }
+.select-emoji {
+  -fx-font-family: "Apple Color Emoji";
+}

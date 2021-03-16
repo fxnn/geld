@@ -1,8 +1,10 @@
-package de.fxnn.geld.jfx;
+package de.fxnn.geld.jfx.transaction;
 
 import static de.fxnn.geld.system.I18n.i18n;
 
 import com.gluonhq.charm.glisten.control.Alert;
+import de.fxnn.geld.jfx.AlertFactory;
+import de.fxnn.geld.jfx.WorkspaceSaveAction;
 import de.fxnn.geld.jfx.model.WorkspaceModel;
 import java.io.IOException;
 import javafx.application.Platform;
@@ -16,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
-public class FileOpenAction implements EventHandler<ActionEvent> {
+public class TransactionLoadAction implements EventHandler<ActionEvent> {
 
   private final Node parent;
   private final WorkspaceModel model;

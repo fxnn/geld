@@ -8,3 +8,9 @@
 #TransactionListCellVBox Label.negativeAmount {
     -fx-fill: darkred;
 }
+
+.select-emoji {
+    -fx-background-color: ghostwhite;
+    -fx-text-alignment: center;
+    -fx-fit-to-height: true;
+}
