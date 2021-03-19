@@ -2,6 +2,8 @@ package de.fxnn.geld.io.workspace;
 
 import static java.util.stream.Collectors.toList;
 
+import de.fxnn.geld.io.ikonli.CategoryIcon;
+import de.fxnn.geld.jfx.model.CategoryModel;
 import de.fxnn.geld.jfx.model.TransactionModel;
 import de.fxnn.geld.jfx.model.WorkspaceModel;
 import java.util.List;
@@ -12,7 +14,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(imports = {FXCollections.class, Collectors.class})
+@Mapper(imports = {FXCollections.class, Collectors.class, CategoryIcon.class})
 public interface ExternalWorkspaceMapper {
 
   ExternalWorkspace toExternal(WorkspaceModel internal);
@@ -26,9 +28,10 @@ public interface ExternalWorkspaceMapper {
   @Mapping(target = "filteredTransactionList", ignore = true)
   WorkspaceModel toInternalWithoutTransientProperties(ExternalWorkspace external);
 
-  default ObservableList<TransactionModel> toInternalTransaction(
+  default ObservableList<TransactionModel> toObservableTransactionList(
       List<ExternalTransaction> external) {
-    return FXCollections.observableList(external.stream().map(this::toInternal).collect(toList()));
+    return FXCollections.observableArrayList(
+        external.stream().map(this::toInternal).collect(toList()));
   }
 
   default TransactionModel toInternal(ExternalTransaction external) {
@@ -39,6 +42,22 @@ public interface ExternalWorkspaceMapper {
 
   @Mapping(target = "lowercaseWords", ignore = true)
   TransactionModel toInternalWithoutTransientProperties(ExternalTransaction external);
+
+  default ObservableList<CategoryModel> toObservableCategoryList(List<ExternalCategory> external) {
+    if (external == null) {
+      return FXCollections.observableArrayList();
+    }
+    return FXCollections.observableArrayList(
+        external.stream().map(this::toInternal).collect(toList()));
+  }
+
+  @Mapping(target = "categoryIconName", expression = "java(internal.getCategoryIcon().name())")
+  ExternalCategory toExternal(CategoryModel internal);
+
+  @Mapping(
+      target = "categoryIcon",
+      expression = "java(CategoryIcon.valueOf(external.getCategoryIconName()))")
+  CategoryModel toInternal(ExternalCategory external);
 
   static ExternalWorkspaceMapper create() {
     return Mappers.getMapper(ExternalWorkspaceMapper.class);

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javax.annotation.Nullable;
 import lombok.Data;
 
 /**
@@ -17,8 +18,15 @@ import lombok.Data;
 @Data
 public class WorkspaceModel implements Model {
 
+  private final ObservableList<CategoryModel> categoryList = FXCollections.observableArrayList();
+
   private final ObservableList<TransactionModel> transactionList =
       FXCollections.observableArrayList();
+
+  /** The search expression entered by the user. */
+  @Nullable private String filterExpression;
+
+  /** The transaction list, filtered through the {@link #filterExpression}. */
   private final FilteredList<TransactionModel> filteredTransactionList =
       new FilteredList<>(transactionList, t -> true);
 
@@ -36,6 +44,22 @@ public class WorkspaceModel implements Model {
 
   @Override
   public void updateTransientProperties() {
-    // nothing to do
+    categoryList.forEach(CategoryModel::updateTransientProperties);
+    transactionList.forEach(this::updateTransientProperties);
+  }
+
+  private void updateTransientProperties(TransactionModel transactionModel) {
+    transactionModel.updateTransientProperties();
+    transactionModel.setCategoryModel(selectFirstMatchingCategory(transactionModel));
+  }
+
+  private CategoryModel selectFirstMatchingCategory(TransactionModel transactionModel) {
+    for (CategoryModel categoryModel : categoryList) {
+      if (categoryModel.getFilterPredicate().test(transactionModel)) {
+        return categoryModel;
+      }
+    }
+
+    return null;
   }
 }

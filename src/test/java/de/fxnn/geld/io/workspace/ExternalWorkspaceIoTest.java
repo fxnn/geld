@@ -32,6 +32,7 @@ class ExternalWorkspaceIoTest {
 
   @Test
   void serialize() throws IOException {
+    var category = new ExternalCategory("ICON", "filter");
     var transaction =
         new ExternalTransaction(
             new BigDecimal("1.11"),
@@ -41,13 +42,17 @@ class ExternalWorkspaceIoTest {
             "REFERENCE TEXT",
             "BENEFICIARY",
             LocalDate.of(1999, 12, 31));
-    var workspace = new ExternalWorkspace(List.of(transaction));
+    var workspace = new ExternalWorkspace(List.of(category), List.of(transaction));
 
     new ExternalWorkspaceIo().store(workspace, path, StandardOpenOption.CREATE);
     var contents = whenReadFile();
 
     assertEquals(
-        "{\"transactionList\":[{"
+        "{\"categoryList\":[{"
+            + "\"categoryIconName\":\"ICON\","
+            + "\"filterExpression\":\"filter\""
+            + "}],"
+            + "\"transactionList\":[{"
             + "\"balanceBefore\":1.11,"
             + "\"amount\":5.55,"
             + "\"balanceAfter\":9.99,"
@@ -63,7 +68,11 @@ class ExternalWorkspaceIoTest {
   void deserialize() throws IOException {
     Path file =
         givenFile(
-            "{\"transactionList\": [{"
+            "{\"categoryList\":[{"
+                + "\"categoryIconName\":\"ICON\","
+                + "\"filterExpression\":\"filter\""
+                + "}],"
+                + "\"transactionList\": [{"
                 + "\"balanceBefore\": \"1.11\","
                 + "\"amount\": \"5.55\","
                 + "\"balanceAfter\": \"9.99\","
@@ -76,8 +85,13 @@ class ExternalWorkspaceIoTest {
     var workspace = new ExternalWorkspaceIo().load(file);
 
     assertNotNull(workspace);
-    assertThat(workspace.getTransactionList(), hasSize(1));
 
+    assertThat(workspace.getCategoryList(), hasSize(1));
+    var category = workspace.getCategoryList().get(0);
+    assertEquals("ICON", category.getCategoryIconName());
+    assertEquals("filter", category.getFilterExpression());
+
+    assertThat(workspace.getTransactionList(), hasSize(1));
     var transaction = workspace.getTransactionList().get(0);
     assertEquals(new BigDecimal("1.11"), transaction.getBalanceBefore());
     assertEquals(new BigDecimal("5.55"), transaction.getAmount());

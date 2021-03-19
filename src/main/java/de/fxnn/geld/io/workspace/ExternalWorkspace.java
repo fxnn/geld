@@ -8,5 +8,6 @@ import lombok.Value;
 @CompiledJson
 public class ExternalWorkspace {
 
+  List<ExternalCategory> categoryList;
   List<ExternalTransaction> transactionList;
 }

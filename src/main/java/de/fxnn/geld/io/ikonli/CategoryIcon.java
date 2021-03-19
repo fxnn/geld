@@ -3,7 +3,12 @@ package de.fxnn.geld.io.ikonli;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.unicons.UniconsLine;
 
-public enum LabelIcon {
+/**
+ * @see <a href="https://kordamp.org/ikonli/cheat-sheet-unicons.html">List of all supported
+ *     icons</a>
+ */
+public enum CategoryIcon {
+  ANIMAL(UniconsLine.GITHUB_ALT),
   BABY(UniconsLine.BABY_CARRIAGE),
   BALL(UniconsLine.DRIBBBLE),
   BAR(UniconsLine.GLASS_MARTINI_ALT),
@@ -13,27 +18,36 @@ public enum LabelIcon {
   CAR(UniconsLine.CAR),
   CASH(UniconsLine.MONEY_BILL),
   CHILDREN(UniconsLine.KID),
+  CLEANING(UniconsLine.SANITIZER),
+  COFFEE(UniconsLine.COFFEE),
+  COMPUTER(UniconsLine.DESKTOP),
+  CONSTRUCTION(UniconsLine.CONSTRUCTOR),
   CREDIT_CARD(UniconsLine.CREDIT_CARD),
   DRINK(UniconsLine.GLASS),
-  DRUGSTORE(UniconsLine.TOILET_PAPER),
   EDUCATION(UniconsLine.BOOK_READER),
   ENERGY(UniconsLine.LIGHTBULB),
   FAST_FOOD(UniconsLine.PIZZA_SLICE),
   FINANCE(UniconsLine.UNIVERSITY),
+  FLOWER(UniconsLine.FLOWER),
   FOOD(UniconsLine.UTENSILS),
   FUEL(UniconsLine.PUMP),
   FUN(UniconsLine.BOWLING_BALL),
   GARDEN(UniconsLine.SHOVEL),
   GIFT(UniconsLine.GIFT),
   HEALTH(UniconsLine.HEART_MEDICAL),
+  HYGIENE(UniconsLine.TOILET_PAPER),
   HOME(UniconsLine.HOME),
   HOTEL(UniconsLine.BED),
+  INSURANCE(UniconsLine.SHIELD),
   INTERNET(UniconsLine.WIFI),
   MAIL(UniconsLine.ENVELOPE),
   MEDICAL(UniconsLine.HOSPITAL),
   MEIDCINE(UniconsLine.CAPSULE),
+  MOBILE_PHONE(UniconsLine.MOBILE_ANDROID),
   MUSIC(UniconsLine.MUSIC),
   NATURE(UniconsLine.TREES),
+  PAPER(UniconsLine.COPY),
+  PEN(UniconsLine.PEN),
   PLANE(UniconsLine.PLANE),
   SECURITY(UniconsLine.LOCK_ALT),
   SHOPPING_OFFLINE(UniconsLine.SHOPPING_BAG),
@@ -51,7 +65,7 @@ public enum LabelIcon {
 
   private final Ikon ikon;
 
-  LabelIcon(Ikon ikon) {
+  CategoryIcon(Ikon ikon) {
     this.ikon = ikon;
   }
 

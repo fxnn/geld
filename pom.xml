@@ -287,6 +287,17 @@
         <configuration>
           <mainClass>${main.class}</mainClass>
         </configuration>
+        <executions>
+          <execution>
+            <!-- start using `mvn javafx:run@debug` -->
+            <id>debug</id>
+            <configuration>
+              <options>
+                <option>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5000</option>
+              </options>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>com.gluonhq</groupId>

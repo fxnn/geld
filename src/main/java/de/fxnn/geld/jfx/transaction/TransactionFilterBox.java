@@ -28,13 +28,14 @@ public class TransactionFilterBox extends HBox {
 
   private void onFilterTextChanged(
       ObservableValue<? extends String> observable, String oldValue, String newValue) {
+    model.setFilterExpression(newValue);
     model.getFilteredTransactionList().setPredicate(filterParser.parse(newValue));
   }
 
   private Node createLabelButton() {
     var labelAddMenuItem = new MenuItem(i18n().message("transaction.filter.label.add"));
     labelAddMenuItem.setOnAction(
-        e -> MobileApplication.getInstance().switchView(CreateLabelView.VIEW_NAME));
+        e -> MobileApplication.getInstance().switchView(CreateCategoryView.VIEW_NAME));
 
     var labelButton = new MenuButton();
     labelButton.setGraphic(MaterialDesignIcon.LABEL.graphic());

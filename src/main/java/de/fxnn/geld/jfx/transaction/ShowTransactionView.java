@@ -10,6 +10,8 @@ import com.gluonhq.charm.glisten.visual.MaterialDesignIcon;
 import de.fxnn.geld.jfx.ApplicationMetadata;
 import de.fxnn.geld.jfx.WorkspaceSaveAction;
 import de.fxnn.geld.jfx.model.WorkspaceModel;
+import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.scene.layout.VBox;
 
 public class ShowTransactionView extends View {
@@ -19,6 +21,9 @@ public class ShowTransactionView extends View {
   public ShowTransactionView(WorkspaceModel model, ApplicationMetadata applicationMetadata) {
     var workspaceSaveAction = new WorkspaceSaveAction(model, applicationMetadata);
     var transactionLoadAction = new TransactionLoadAction(this, model, workspaceSaveAction);
+    model
+        .getCategoryList()
+        .addListener((InvalidationListener) ignored -> Platform.runLater(workspaceSaveAction));
 
     new FloatingActionButton(MaterialDesignIcon.FOLDER_OPEN.text, transactionLoadAction)
         .showOn(this);

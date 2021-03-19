@@ -12,7 +12,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import lombok.Data;
+import org.kordamp.ikonli.Ikon;
+import org.kordamp.ikonli.unicons.UniconsLine;
 
 @Data
 public class TransactionModel implements Model {
@@ -30,6 +33,9 @@ public class TransactionModel implements Model {
    * search.
    */
   private final Set<String> lowercaseWords = new HashSet<>();
+
+  /** Transient property referring to the category this transaction belongs to. */
+  @Nullable private CategoryModel categoryModel;
 
   @Override
   public void updateTransientProperties() {
@@ -81,5 +87,15 @@ public class TransactionModel implements Model {
       result.add(txView);
     }
     return result;
+  }
+
+  public Ikon getCategoryIkon() {
+    return getOptionalCategoryModel()
+        .map(CategoryModel::getIkon)
+        .orElse(UniconsLine.QUESTION_CIRCLE);
+  }
+
+  public Optional<CategoryModel> getOptionalCategoryModel() {
+    return Optional.ofNullable(getCategoryModel());
   }
 }
