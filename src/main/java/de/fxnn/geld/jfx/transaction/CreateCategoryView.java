@@ -62,7 +62,7 @@ public class CreateCategoryView extends View {
   private void createCategory(CategoryIcon icon) {
     CategoryModel categoryModel = new CategoryModel();
     categoryModel.setCategoryIcon(icon);
-    categoryModel.setFilterExpression(model.getFilterExpression());
+    categoryModel.setFilterExpression(model.getFilterExpression().getValue());
     model.getCategoryList().add(categoryModel);
     model.updateTransientProperties();
 

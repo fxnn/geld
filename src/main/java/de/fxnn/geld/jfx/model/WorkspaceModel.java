@@ -5,10 +5,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javax.annotation.Nullable;
 import lombok.Data;
 
 /**
@@ -24,7 +25,7 @@ public class WorkspaceModel implements Model {
       FXCollections.observableArrayList();
 
   /** The search expression entered by the user. */
-  @Nullable private String filterExpression;
+  private Property<String> filterExpression = new SimpleStringProperty();
 
   /** The transaction list, filtered through the {@link #filterExpression}. */
   private final FilteredList<TransactionModel> filteredTransactionList =
