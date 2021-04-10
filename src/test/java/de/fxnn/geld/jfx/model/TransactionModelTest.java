@@ -3,7 +3,6 @@ package de.fxnn.geld.jfx.model;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -18,7 +17,7 @@ class TransactionModelTest {
     sut.setReferenceText(input);
     sut.updateTransientProperties();
 
-    assertTrue(sut.containsAnyLowerCase(List.of(expectedMatchingExpression)));
+    assertTrue(sut.containsLowerCaseWord(expectedMatchingExpression));
   }
 
   static Stream<Arguments> containsAnyLowerCase__matches() {

@@ -5,9 +5,9 @@ import static de.fxnn.geld.system.I18n.i18n;
 import com.gluonhq.charm.glisten.application.MobileApplication;
 import com.gluonhq.charm.glisten.control.TextField;
 import com.gluonhq.charm.glisten.visual.GlistenStyleClasses;
-import com.gluonhq.charm.glisten.visual.MaterialDesignIcon;
 import de.fxnn.geld.jfx.model.CategoryModel;
 import de.fxnn.geld.jfx.model.FilterParser;
+import de.fxnn.geld.jfx.model.TransactionModel;
 import de.fxnn.geld.jfx.model.WorkspaceModel;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener.Change;
@@ -17,6 +17,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.unicons.UniconsLine;
 
 public class TransactionFilterBox extends HBox {
 
@@ -45,15 +46,24 @@ public class TransactionFilterBox extends HBox {
 
   private Node createFilterButton() {
     var categoryAddMenuItem = new MenuItem(i18n().message("transaction.filter.category.add"));
+    categoryAddMenuItem.setGraphic(new FontIcon(UniconsLine.PLUS));
     categoryAddMenuItem.setOnAction(
         e -> MobileApplication.getInstance().switchView(CreateCategoryView.VIEW_NAME));
 
+    var noCategoryFilterMenuItem =
+        new MenuItem(i18n().message("transaction.filter.missing.category"));
+    noCategoryFilterMenuItem.setGraphic(new FontIcon(TransactionModel.NO_CATEGORY_IKON));
+    noCategoryFilterMenuItem.setOnAction(
+        e -> model.getFilterExpression().setValue("without:category"));
+
     var filterButton = new MenuButton();
-    filterButton.setGraphic(MaterialDesignIcon.LABEL.graphic());
-    filterButton.getItems().add(categoryAddMenuItem);
+    filterButton.setGraphic(new FontIcon(UniconsLine.APPS));
     GlistenStyleClasses.applyStyleClass(filterButton, GlistenStyleClasses.BUTTON_FLAT);
 
+    filterButton.getItems().add(categoryAddMenuItem);
+    filterButton.getItems().add(noCategoryFilterMenuItem);
     model.getCategoryList().forEach(category -> addCategoryMenuItem(category, filterButton));
+
     model
         .getCategoryList()
         .addListener(

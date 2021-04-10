@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -19,6 +18,8 @@ import org.kordamp.ikonli.unicons.UniconsLine;
 
 @Data
 public class TransactionModel implements Model {
+
+  public static final Ikon NO_CATEGORY_IKON = UniconsLine.QUESTION_CIRCLE;
 
   private BigDecimal balanceBefore;
   private BigDecimal amount;
@@ -42,13 +43,25 @@ public class TransactionModel implements Model {
     calculateWords();
   }
 
+  public boolean containsLowerCaseWord(String word) {
+    return lowercaseWords.contains(word);
+  }
+
+  public boolean containsSubString(String value) {
+    return streamTextFields().filter(Objects::nonNull).anyMatch(s -> s.contains(value));
+  }
+
   private void calculateWords() {
     lowercaseWords.clear();
-    Stream.of(transactionDescription, referenceText, beneficiary)
+    streamTextFields()
         .filter(Objects::nonNull)
         .flatMap(this::splitWords)
         .map(String::toLowerCase)
         .forEach(lowercaseWords::add);
+  }
+
+  private Stream<String> streamTextFields() {
+    return Stream.of(transactionDescription, referenceText, beneficiary);
   }
 
   private Stream<String> splitWords(String text) {
@@ -56,10 +69,6 @@ public class TransactionModel implements Model {
     Stream.of(text.split("\\s+")).forEach(builder::add);
     Stream.of(text.split("\\W+")).forEach(builder::add);
     return builder.build();
-  }
-
-  public boolean containsAnyLowerCase(List<String> criteria) {
-    return criteria.stream().anyMatch(lowercaseWords::contains);
   }
 
   public static ArrayList<TransactionModel> fromMt940Message(Mt940Message message) {
@@ -90,9 +99,7 @@ public class TransactionModel implements Model {
   }
 
   public Ikon getCategoryIkon() {
-    return getOptionalCategoryModel()
-        .map(CategoryModel::getIkon)
-        .orElse(UniconsLine.QUESTION_CIRCLE);
+    return getOptionalCategoryModel().map(CategoryModel::getIkon).orElse(NO_CATEGORY_IKON);
   }
 
   public Optional<CategoryModel> getOptionalCategoryModel() {
