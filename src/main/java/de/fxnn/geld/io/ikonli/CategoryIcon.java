@@ -24,6 +24,7 @@ public enum CategoryIcon {
   COMPUTER(UniconsLine.DESKTOP),
   CONSTRUCTION(UniconsLine.CONSTRUCTOR),
   CREDIT_CARD(UniconsLine.CREDIT_CARD),
+  DOLLAR(UniconsLine.DOLLAR_SIGN),
   DRINK(UniconsLine.GLASS),
   EDUCATION(UniconsLine.BOOK_READER),
   ENERGY(UniconsLine.LIGHTBULB),
@@ -45,7 +46,8 @@ public enum CategoryIcon {
   MAIL(UniconsLine.ENVELOPE),
   MEDIA(UniconsLine.PLAY_CIRCLE),
   MEDICAL(UniconsLine.HOSPITAL),
-  MEIDCINE(UniconsLine.CAPSULE),
+  MEDICINE(UniconsLine.CAPSULE),
+  MOVE(UniconsLine.ARROWS_H),
   MOBILE_PHONE(UniconsLine.MOBILE_ANDROID),
   MUSIC(UniconsLine.MUSIC),
   NATURE(UniconsLine.TREES),
@@ -56,6 +58,7 @@ public enum CategoryIcon {
   SHOPPING_OFFLINE(UniconsLine.SHOPPING_BAG),
   SHOPPING_ONLINE(UniconsLine.BOX),
   SMILE(UniconsLine.GRIN),
+  SUN(UniconsLine.SUN),
   SUPERMARKET(UniconsLine.SHOPPING_CART),
   TABLE_TENNIS(UniconsLine.TABLE_TENNIS),
   TELEPHONE(UniconsLine.PHONE),
@@ -64,6 +67,7 @@ public enum CategoryIcon {
   TRAIN(UniconsLine.METRO),
   TRASH(UniconsLine.TRASH_ALT),
   TRAVEL(UniconsLine.MAP),
+  UMBRELLA(UniconsLine.UMBRELLA),
   WINTER(UniconsLine.SNOWFLAKE),
   WORK(UniconsLine.BAG);
 
