@@ -7,6 +7,7 @@ import de.fxnn.geld.io.workspace.WorkspaceModelIo;
 import de.fxnn.geld.jfx.model.WorkspaceModel;
 import de.fxnn.geld.jfx.transaction.CreateCategoryView;
 import de.fxnn.geld.jfx.transaction.ShowTransactionView;
+import de.fxnn.geld.jfx.transaction.VisualizeTransactionView;
 import java.io.IOException;
 import java.nio.file.Files;
 import javafx.application.Application;
@@ -33,6 +34,7 @@ public class Main extends MobileApplication {
     addViewFactory(
         ShowTransactionView.VIEW_NAME, () -> new ShowTransactionView(model, applicationMetadata));
     addViewFactory(CreateCategoryView.VIEW_NAME, () -> new CreateCategoryView(model));
+    addViewFactory(VisualizeTransactionView.VIEW_NAME, () -> new VisualizeTransactionView(model));
   }
 
   /**
