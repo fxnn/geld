@@ -35,13 +35,11 @@ jobs:
     - name: Validate Code Formatting
       run: mvn --batch-mode spotless:check
 
-    - name: Build with Maven
-      run: mvn --batch-mode -DskipTests package
-    - name: Test with Maven and Headless mode
+    - name: Build with Maven in Headless mode
       uses: GabrielBB/xvfb-action@v1
       with:
-        run: mvn --batch-mode test -Pheadless
-      
+        run: mvn --batch-mode package -Pheadless
+
     - name: Archive JAR files
       uses: actions/upload-artifact@v2
       with:
