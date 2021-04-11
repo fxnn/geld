@@ -36,7 +36,11 @@ jobs:
       run: mvn --batch-mode spotless:check
 
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn --batch-mode -DskipTests package
+    - name: Test with Maven and Headless mode
+      uses: GabrielBB/xvfb-action@v1
+      with:
+        run: mvn --batch-mode test -Pheadless
       
     - name: Archive JAR files
       uses: actions/upload-artifact@v2

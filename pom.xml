@@ -189,6 +189,20 @@
       <version>3.7.7</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <!-- see https://github.com/TestFX/TestFX -->
+      <groupId>org.testfx</groupId>
+      <artifactId>testfx-junit5</artifactId>
+      <version>4.0.16-alpha</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <!-- headless runner for TestFX -->
+      <groupId>org.testfx</groupId>
+      <artifactId>openjfx-monocle</artifactId>
+      <version>jdk-11+26</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -361,6 +375,26 @@
       <properties>
         <client.target>ios</client.target>
       </properties>
+    </profile>
+    <profile>
+      <id>headless</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <!-- as per https://github.com/TestFX/TestFX docs -->
+                <java.awt.headless>true</java.awt.headless>
+                <testfx.robot>glass</testfx.robot>
+                <testfx.headless>true</testfx.headless>
+                <prism.order>sw</prism.order>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 
