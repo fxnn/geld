@@ -5,9 +5,7 @@ import de.fxnn.geld.jfx.model.WorkspaceModel;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import javafx.collections.FXCollections;
@@ -28,13 +26,6 @@ public class TransactionBarChart extends BarChart<String, Number> {
   private final ObservableList<Data<String, Number>> dataList = FXCollections.observableArrayList();
   /** Keys are categories; a value is the categories' index in {@link #dataList}. */
   private final Map<String, Integer> categoryDataIndexMap = new HashMap<>();
-  /**
-   * Holds the actual values of {@link #dataList}.
-   *
-   * <p>Unfortunately, this is necessary as the chart's actual values are modified e.g. during
-   * animations.
-   */
-  private final List<BigDecimal> internalDataList = new ArrayList<>();
 
   public TransactionBarChart(WorkspaceModel model) {
     super(new CategoryAxis(), new NumberAxis());
@@ -44,6 +35,9 @@ public class TransactionBarChart extends BarChart<String, Number> {
 
     ((CategoryAxis) getXAxis()).setCategories(categoryList);
     getData().add(new Series<>(dataList));
+
+    // styling
+    setLegendVisible(false);
   }
 
   private void onTransactionListChanged(Change<? extends TransactionModel> change) {
@@ -80,7 +74,6 @@ public class TransactionBarChart extends BarChart<String, Number> {
             // HINT: we always add to the end; the general assumption is that transactions
             //   appear in order
             dataList.add(new Data<>(category, transactionModel.getAmount()));
-            internalDataList.add(transactionModel.getAmount());
             return dataList.size() - 1;
           }
           modifyDataPoint(index, value -> value.add(transactionModel.getAmount()));
@@ -89,13 +82,14 @@ public class TransactionBarChart extends BarChart<String, Number> {
   }
 
   private void modifyDataPoint(Integer index, Function<BigDecimal, BigDecimal> modification) {
-    var oldValue = internalDataList.get(index);
-    var newValue = modification.apply(oldValue);
-    internalDataList.set(index, newValue);
-
     var data = dataList.get(index);
+    var oldValue =
+        data.getYValue() instanceof BigDecimal
+            ? (BigDecimal) data.getYValue()
+            : BigDecimal.valueOf(data.getYValue().doubleValue());
+    var newValue = modification.apply(oldValue);
+
     data.setYValue(newValue);
-    dataList.set(index, data);
   }
 
   private void updateCategoryBounds(LocalDate transactionMonth) {

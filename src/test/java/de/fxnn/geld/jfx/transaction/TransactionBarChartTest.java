@@ -2,9 +2,14 @@ package de.fxnn.geld.jfx.transaction;
 
 import de.fxnn.geld.jfx.model.TransactionModel;
 import de.fxnn.geld.jfx.model.WorkspaceModel;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import javafx.scene.Scene;
 import javafx.scene.chart.XYChart.Data;
@@ -14,16 +19,19 @@ import lombok.Value;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
+import org.testfx.util.DebugUtils;
 
 @ExtendWith(ApplicationExtension.class)
 class TransactionBarChartTest {
+
+  private static final double MAX_DELTA = 0.001d;
 
   WorkspaceModel model;
   TransactionBarChart sut;
@@ -37,18 +45,17 @@ class TransactionBarChartTest {
   }
 
   @Test
-  void add_singleDataPoint(FxRobot robot) {
-    with(robot)
+  void add_singleDataPoint(FxRobot robot, TestInfo testInfo) {
+    with(robot, testInfo)
         .given()
         .transaction(LocalDate.of(2021, 1, 1), BigDecimal.valueOf(1.1d))
         .then()
         .sut(hasData("2021-01", "1.1"));
   }
 
-  @Disabled
   @Test
-  void addAndRemove_oneOfTwoPoints(FxRobot robot) {
-    with(robot)
+  void addAndRemove_oneOfTwoPoints(FxRobot robot, TestInfo testInfo) {
+    with(robot, testInfo)
         .given()
         .transaction(LocalDate.of(2021, 1, 1), BigDecimal.valueOf(1.1d))
         .transaction(LocalDate.of(2021, 2, 2), BigDecimal.valueOf(2.2d))
@@ -60,22 +67,47 @@ class TransactionBarChartTest {
         .sut(hasData("2021-02", "0"));
   }
 
-  private FixtureBuilder with(FxRobot robot) {
-    return new FixtureBuilder(robot);
+  private FixtureBuilder with(FxRobot robot, TestInfo testInfo) {
+    return new FixtureBuilder(robot, testInfo);
   }
 
   @Value
   private class AssertionBuilder {
+    TestInfo testInfo;
 
     public AssertionBuilder sut(Matcher<TransactionBarChart> matcher) {
-      FxAssert.verifyThat(sut, matcher);
+      FxAssert.verifyThat(sut, matcher, saveScreenshot());
       return this;
+    }
+
+    private Function<StringBuilder, StringBuilder> saveScreenshot() {
+      return DebugUtils.saveScreenshot(
+          () ->
+              createDirectories(Paths.get("target", "screenshots")).resolve(createImageFileName()),
+          "  ");
+    }
+
+    private Path createDirectories(Path directory) {
+      try {
+        return Files.createDirectories(directory);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    private Path createImageFileName() {
+      var testName =
+          testInfo.getTestClass().map(Class::getSimpleName).orElse("")
+              + " - "
+              + testInfo.getDisplayName().replaceAll("[^A-Za-z0-9]", "_");
+      return DebugUtils.defaultImagePath(testName).get().getFileName();
     }
   }
 
   @Value
   private class FixtureBuilder {
     FxRobot robot;
+    TestInfo testInfo;
 
     public FixtureBuilder given() {
       return this;
@@ -86,7 +118,7 @@ class TransactionBarChartTest {
     }
 
     public AssertionBuilder then() {
-      return new AssertionBuilder();
+      return new AssertionBuilder(testInfo);
     }
 
     public FixtureBuilder filter(Predicate<? super TransactionModel> predicate) {
@@ -106,8 +138,7 @@ class TransactionBarChartTest {
     }
 
     public FixtureBuilder awaitSutAnimationEnd() {
-      // HINT: pretty dumb for now. If we're green, try with robot.interrupt();
-      robot.sleep(2000);
+      robot.interrupt();
       return this;
     }
   }
@@ -155,7 +186,7 @@ class TransactionBarChartTest {
             if (!expectedCategory.equals(data.getXValue())) {
               continue;
             }
-            if (expectedBigDecimal.equals(actualValue)) {
+            if (actualValue instanceof BigDecimal && isNearlyExpected((BigDecimal) actualValue)) {
               return true;
             }
             if (actualValue instanceof Double && isNearlyExpected((Double) actualValue)) {
@@ -174,8 +205,16 @@ class TransactionBarChartTest {
             .appendText(formatDataPoint(expectedCategory, expectedBigDecimal));
       }
 
+      private boolean isNearlyExpected(BigDecimal actualValue) {
+        return expectedBigDecimal
+                .subtract(actualValue)
+                .abs()
+                .compareTo(BigDecimal.valueOf(MAX_DELTA))
+            < 0;
+      }
+
       private boolean isNearlyExpected(Double actualValue) {
-        return Math.abs(expectedBigDecimal.doubleValue() - actualValue) < 0.001;
+        return Math.abs(expectedBigDecimal.doubleValue() - actualValue) < MAX_DELTA;
       }
 
       private String formatDataPoint(String category, Object value) {
