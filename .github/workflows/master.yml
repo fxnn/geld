@@ -50,3 +50,9 @@ jobs:
       with:
         name: surefire-reports
         path: target/surefire-reports/*.xml
+    - name: Archive Test Screenshots
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-screenshots
+        path: target/screenshots/*.png
+        if-no-files-found: ignore
