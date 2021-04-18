@@ -1,4 +1,4 @@
-package de.fxnn.geld.jfx;
+package de.fxnn.geld.common.view;
 
 import com.gluonhq.charm.glisten.application.MobileApplication;
 import com.gluonhq.charm.glisten.control.FloatingActionButton;

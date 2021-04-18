@@ -1,6 +1,9 @@
-package de.fxnn.geld.jfx.model;
+package de.fxnn.geld.category.model;
 
+import de.fxnn.geld.common.model.Model;
 import de.fxnn.geld.io.ikonli.CategoryIcon;
+import de.fxnn.geld.transaction.model.FilterParser;
+import de.fxnn.geld.transaction.model.TransactionModel;
 import java.util.function.Predicate;
 import lombok.Data;
 import org.kordamp.ikonli.Ikon;

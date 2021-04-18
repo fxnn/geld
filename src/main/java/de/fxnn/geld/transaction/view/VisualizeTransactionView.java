@@ -1,12 +1,12 @@
-package de.fxnn.geld.jfx.transaction;
+package de.fxnn.geld.transaction.view;
 
-import static de.fxnn.geld.system.I18n.i18n;
+import static de.fxnn.geld.common.platform.I18n.i18n;
 
 import com.gluonhq.charm.glisten.control.AppBar;
 import com.gluonhq.charm.glisten.mvc.View;
 import com.gluonhq.charm.glisten.visual.MaterialDesignIcon;
-import de.fxnn.geld.jfx.FloatingViewSwitchButton;
-import de.fxnn.geld.jfx.model.WorkspaceModel;
+import de.fxnn.geld.application.model.WorkspaceModel;
+import de.fxnn.geld.common.view.FloatingViewSwitchButton;
 import javafx.scene.layout.VBox;
 import lombok.extern.slf4j.Slf4j;
 

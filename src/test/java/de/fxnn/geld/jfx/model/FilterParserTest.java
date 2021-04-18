@@ -2,6 +2,8 @@ package de.fxnn.geld.jfx.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import de.fxnn.geld.transaction.model.FilterParser;
+import de.fxnn.geld.transaction.model.TransactionModel;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import org.junit.jupiter.api.Test;

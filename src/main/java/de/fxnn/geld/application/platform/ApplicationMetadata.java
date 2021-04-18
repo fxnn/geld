@@ -1,4 +1,4 @@
-package de.fxnn.geld.jfx;
+package de.fxnn.geld.application.platform;
 
 import java.io.IOException;
 import java.nio.file.Path;

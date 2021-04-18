@@ -2,6 +2,7 @@ package de.fxnn.geld.jfx;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import de.fxnn.geld.application.platform.ApplicationMetadata;
 import org.junit.jupiter.api.Test;
 
 class ApplicationMetadataTest {

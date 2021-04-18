@@ -1,13 +1,14 @@
-package de.fxnn.geld.jfx.transaction;
+package de.fxnn.geld.category.view;
 
-import static de.fxnn.geld.system.I18n.i18n;
+import static de.fxnn.geld.common.platform.I18n.i18n;
 
 import com.gluonhq.charm.glisten.application.MobileApplication;
 import com.gluonhq.charm.glisten.control.AppBar;
 import com.gluonhq.charm.glisten.mvc.View;
+import de.fxnn.geld.application.model.WorkspaceModel;
+import de.fxnn.geld.category.model.CategoryModel;
 import de.fxnn.geld.io.ikonli.CategoryIcon;
-import de.fxnn.geld.jfx.model.CategoryModel;
-import de.fxnn.geld.jfx.model.WorkspaceModel;
+import de.fxnn.geld.transaction.view.ShowTransactionView;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;

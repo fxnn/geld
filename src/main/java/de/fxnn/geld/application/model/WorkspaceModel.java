@@ -1,6 +1,9 @@
-package de.fxnn.geld.jfx.model;
+package de.fxnn.geld.application.model;
 
+import de.fxnn.geld.category.model.CategoryModel;
+import de.fxnn.geld.common.model.Model;
 import de.fxnn.geld.io.mt940.Mt940Loader;
+import de.fxnn.geld.transaction.model.TransactionModel;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

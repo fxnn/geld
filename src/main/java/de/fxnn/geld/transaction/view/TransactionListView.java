@@ -1,8 +1,8 @@
-package de.fxnn.geld.jfx.transaction;
+package de.fxnn.geld.transaction.view;
 
 import com.gluonhq.charm.glisten.control.CharmListView;
-import de.fxnn.geld.jfx.model.TransactionModel;
-import de.fxnn.geld.jfx.model.WorkspaceModel;
+import de.fxnn.geld.application.model.WorkspaceModel;
+import de.fxnn.geld.transaction.model.TransactionModel;
 import java.time.LocalDate;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;

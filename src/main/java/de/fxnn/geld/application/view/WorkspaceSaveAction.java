@@ -1,9 +1,11 @@
-package de.fxnn.geld.jfx;
+package de.fxnn.geld.application.view;
 
-import static de.fxnn.geld.system.I18n.i18n;
+import static de.fxnn.geld.common.platform.I18n.i18n;
 
+import de.fxnn.geld.application.model.WorkspaceModel;
+import de.fxnn.geld.application.platform.ApplicationMetadata;
+import de.fxnn.geld.common.view.AlertFactory;
 import de.fxnn.geld.io.workspace.WorkspaceModelIo;
-import de.fxnn.geld.jfx.model.WorkspaceModel;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;

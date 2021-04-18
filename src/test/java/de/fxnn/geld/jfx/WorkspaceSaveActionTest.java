@@ -1,7 +1,9 @@
 package de.fxnn.geld.jfx;
 
 import com.google.common.jimfs.Jimfs;
-import de.fxnn.geld.jfx.model.WorkspaceModel;
+import de.fxnn.geld.application.model.WorkspaceModel;
+import de.fxnn.geld.application.platform.ApplicationMetadata;
+import de.fxnn.geld.application.view.WorkspaceSaveAction;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;

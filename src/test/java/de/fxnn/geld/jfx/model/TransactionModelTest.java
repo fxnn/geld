@@ -3,6 +3,7 @@ package de.fxnn.geld.jfx.model;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import de.fxnn.geld.transaction.model.TransactionModel;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

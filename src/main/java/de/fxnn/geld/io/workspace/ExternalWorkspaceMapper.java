@@ -2,10 +2,10 @@ package de.fxnn.geld.io.workspace;
 
 import static java.util.stream.Collectors.toList;
 
+import de.fxnn.geld.application.model.WorkspaceModel;
+import de.fxnn.geld.category.model.CategoryModel;
 import de.fxnn.geld.io.ikonli.CategoryIcon;
-import de.fxnn.geld.jfx.model.CategoryModel;
-import de.fxnn.geld.jfx.model.TransactionModel;
-import de.fxnn.geld.jfx.model.WorkspaceModel;
+import de.fxnn.geld.transaction.model.TransactionModel;
 import java.util.List;
 import java.util.stream.Collectors;
 import javafx.collections.FXCollections;

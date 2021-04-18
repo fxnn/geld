@@ -1,4 +1,4 @@
-package de.fxnn.geld.jfx.model;
+package de.fxnn.geld.common.model;
 
 public interface Model {
 

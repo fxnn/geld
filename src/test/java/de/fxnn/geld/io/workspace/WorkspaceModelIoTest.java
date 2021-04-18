@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import de.fxnn.geld.jfx.model.TransactionModel;
-import de.fxnn.geld.jfx.model.WorkspaceModel;
+import de.fxnn.geld.application.model.WorkspaceModel;
+import de.fxnn.geld.transaction.model.TransactionModel;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.FileSystem;

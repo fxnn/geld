@@ -1,4 +1,4 @@
-package de.fxnn.geld.jfx.model;
+package de.fxnn.geld.transaction.model;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 

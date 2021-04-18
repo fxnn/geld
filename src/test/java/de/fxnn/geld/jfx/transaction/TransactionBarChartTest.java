@@ -1,7 +1,8 @@
 package de.fxnn.geld.jfx.transaction;
 
-import de.fxnn.geld.jfx.model.TransactionModel;
-import de.fxnn.geld.jfx.model.WorkspaceModel;
+import de.fxnn.geld.application.model.WorkspaceModel;
+import de.fxnn.geld.transaction.model.TransactionModel;
+import de.fxnn.geld.transaction.view.TransactionBarChart;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;

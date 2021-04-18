@@ -1,5 +1,7 @@
-package de.fxnn.geld.jfx.model;
+package de.fxnn.geld.transaction.model;
 
+import de.fxnn.geld.category.model.CategoryModel;
+import de.fxnn.geld.common.model.Model;
 import de.fxnn.geld.io.mt940.Mt940BalanceField;
 import de.fxnn.geld.io.mt940.Mt940Message;
 import de.fxnn.geld.io.mt940.Mt940Message.Transaction;

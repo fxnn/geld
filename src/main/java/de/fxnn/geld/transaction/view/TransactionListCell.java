@@ -1,8 +1,8 @@
-package de.fxnn.geld.jfx.transaction;
+package de.fxnn.geld.transaction.view;
 
 import com.gluonhq.charm.glisten.control.CharmListCell;
 import com.gluonhq.charm.glisten.control.CharmListView;
-import de.fxnn.geld.jfx.model.TransactionModel;
+import de.fxnn.geld.transaction.model.TransactionModel;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import javafx.geometry.Pos;

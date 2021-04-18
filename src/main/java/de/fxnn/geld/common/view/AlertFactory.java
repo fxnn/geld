@@ -1,6 +1,6 @@
-package de.fxnn.geld.jfx;
+package de.fxnn.geld.common.view;
 
-import static de.fxnn.geld.system.I18n.i18n;
+import static de.fxnn.geld.common.platform.I18n.i18n;
 
 import com.gluonhq.charm.glisten.control.Alert;
 import com.google.common.base.Throwables;

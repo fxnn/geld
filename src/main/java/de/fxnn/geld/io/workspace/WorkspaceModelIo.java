@@ -1,6 +1,6 @@
 package de.fxnn.geld.io.workspace;
 
-import de.fxnn.geld.jfx.model.WorkspaceModel;
+import de.fxnn.geld.application.model.WorkspaceModel;
 import java.io.IOException;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;

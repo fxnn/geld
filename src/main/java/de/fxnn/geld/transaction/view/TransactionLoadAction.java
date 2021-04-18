@@ -1,11 +1,11 @@
-package de.fxnn.geld.jfx.transaction;
+package de.fxnn.geld.transaction.view;
 
-import static de.fxnn.geld.system.I18n.i18n;
+import static de.fxnn.geld.common.platform.I18n.i18n;
 
 import com.gluonhq.charm.glisten.control.Alert;
-import de.fxnn.geld.jfx.AlertFactory;
-import de.fxnn.geld.jfx.WorkspaceSaveAction;
-import de.fxnn.geld.jfx.model.WorkspaceModel;
+import de.fxnn.geld.application.model.WorkspaceModel;
+import de.fxnn.geld.application.view.WorkspaceSaveAction;
+import de.fxnn.geld.common.view.AlertFactory;
 import java.io.IOException;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;

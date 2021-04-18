@@ -5,10 +5,10 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import de.fxnn.geld.application.model.WorkspaceModel;
+import de.fxnn.geld.category.model.CategoryModel;
 import de.fxnn.geld.io.ikonli.CategoryIcon;
-import de.fxnn.geld.jfx.model.CategoryModel;
-import de.fxnn.geld.jfx.model.TransactionModel;
-import de.fxnn.geld.jfx.model.WorkspaceModel;
+import de.fxnn.geld.transaction.model.TransactionModel;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;

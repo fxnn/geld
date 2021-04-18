@@ -1,4 +1,4 @@
-package de.fxnn.geld.system;
+package de.fxnn.geld.common.platform;
 
 import java.text.MessageFormat;
 import java.util.Locale;

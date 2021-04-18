@@ -15,7 +15,7 @@
     <!-- compile -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>11</maven.compiler.release>
-    <main.class>de.fxnn.geld.jfx.Main</main.class>
+    <main.class>de.fxnn.geld.application.view.Main</main.class>
 
     <!-- versions -->
     <javafx.version>15.0.1</javafx.version>

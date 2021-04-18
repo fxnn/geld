@@ -1,13 +1,14 @@
-package de.fxnn.geld.jfx;
+package de.fxnn.geld.application.view;
 
 import com.gluonhq.attach.util.Platform;
 import com.gluonhq.charm.glisten.application.MobileApplication;
 import com.gluonhq.charm.glisten.visual.Swatch;
+import de.fxnn.geld.application.model.WorkspaceModel;
+import de.fxnn.geld.application.platform.ApplicationMetadata;
+import de.fxnn.geld.category.view.CreateCategoryView;
 import de.fxnn.geld.io.workspace.WorkspaceModelIo;
-import de.fxnn.geld.jfx.model.WorkspaceModel;
-import de.fxnn.geld.jfx.transaction.CreateCategoryView;
-import de.fxnn.geld.jfx.transaction.ShowTransactionView;
-import de.fxnn.geld.jfx.transaction.VisualizeTransactionView;
+import de.fxnn.geld.transaction.view.ShowTransactionView;
+import de.fxnn.geld.transaction.view.VisualizeTransactionView;
 import java.io.IOException;
 import java.nio.file.Files;
 import javafx.application.Application;
