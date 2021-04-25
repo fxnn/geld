@@ -6,7 +6,6 @@ import com.gluonhq.charm.glisten.application.MobileApplication;
 import com.gluonhq.charm.glisten.control.AppBar;
 import com.gluonhq.charm.glisten.mvc.View;
 import de.fxnn.geld.application.model.WorkspaceModel;
-import de.fxnn.geld.category.model.CategoryModel;
 import de.fxnn.geld.io.ikonli.CategoryIcon;
 import de.fxnn.geld.transaction.view.ShowTransactionView;
 import javafx.geometry.Insets;
@@ -53,20 +52,18 @@ public class CreateCategoryView extends View {
 
     var button = new Button();
     button.setGraphic(fontIcon);
-    button.getStyleClass().add("select-icon");
+    button.getStyleClass().add("button-icon-only");
     button.getStyleClass().add("flat");
+    if (model.getCategoryMap().containsKey(icon)) {
+      button.getStyleClass().add("inverted");
+    }
     button.setOnAction(e -> createCategory(icon));
 
     gridPane.add(button, iconIndex % iconsPerRow, iconIndex / iconsPerRow);
   }
 
   private void createCategory(CategoryIcon icon) {
-    CategoryModel categoryModel = new CategoryModel();
-    categoryModel.setCategoryIcon(icon);
-    categoryModel.setFilterExpression(model.getFilterExpression().getValue());
-    model.getCategoryList().add(categoryModel);
-    model.updateTransientProperties();
-
+    model.assignCategoryIcon(icon, model.getFilterExpression().getValue());
     MobileApplication.getInstance().switchView(ShowTransactionView.VIEW_NAME);
   }
 

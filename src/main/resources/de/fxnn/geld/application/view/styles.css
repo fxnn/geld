@@ -9,11 +9,16 @@
     -fx-fill: darkred;
 }
 
-.select-icon {
+.button-icon-only {
     -fx-background-color: ghostwhite;
     -fx-text-alignment: center;
     -fx-fit-to-height: true;
 }
-
+.button-icon-only.inverted {
+    -fx-background-color: black;
+}
+.button-icon-only.inverted FontIcon {
+    -fx-icon-color: ghostwhite;
+}
 
 .default-color0.chart-bar { -fx-bar-fill: -primary-swatch-700; }

@@ -4,6 +4,7 @@ import de.fxnn.geld.common.model.Model;
 import de.fxnn.geld.io.ikonli.CategoryIcon;
 import de.fxnn.geld.transaction.model.FilterParser;
 import de.fxnn.geld.transaction.model.TransactionModel;
+import java.util.Optional;
 import java.util.function.Predicate;
 import lombok.Data;
 import org.kordamp.ikonli.Ikon;
@@ -32,5 +33,10 @@ public class CategoryModel implements Model {
 
   public Ikon getIkon() {
     return categoryIcon.getIkon();
+  }
+
+  public void appendFilterExpression(String filterExpression) {
+    this.filterExpression =
+        (Optional.ofNullable(this.filterExpression).orElse("") + " " + filterExpression).trim();
   }
 }

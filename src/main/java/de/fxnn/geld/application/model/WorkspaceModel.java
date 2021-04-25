@@ -2,6 +2,7 @@ package de.fxnn.geld.application.model;
 
 import de.fxnn.geld.category.model.CategoryModel;
 import de.fxnn.geld.common.model.Model;
+import de.fxnn.geld.io.ikonli.CategoryIcon;
 import de.fxnn.geld.io.mt940.Mt940Loader;
 import de.fxnn.geld.transaction.model.TransactionModel;
 import java.io.File;
@@ -12,6 +13,7 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.collections.transformation.FilteredList;
 import lombok.Data;
 
@@ -22,15 +24,18 @@ import lombok.Data;
 @Data
 public class WorkspaceModel implements Model {
 
-  private final ObservableList<CategoryModel> categoryList = FXCollections.observableArrayList();
+  /** All category models sorted by their icon. A transient property. */
+  private final ObservableMap<CategoryIcon, CategoryModel> categoryMap =
+      FXCollections.observableHashMap();
 
+  /** All known transactions. A persistent property. */
   private final ObservableList<TransactionModel> transactionList =
       FXCollections.observableArrayList();
 
-  /** The search expression entered by the user. */
+  /** The search expression entered by the user. A transient property. */
   private Property<String> filterExpression = new SimpleStringProperty();
 
-  /** The transaction list, filtered through the {@link #filterExpression}. */
+  /** The transaction list, filtered through the {@link #filterExpression}. A transient property. */
   private final FilteredList<TransactionModel> filteredTransactionList =
       new FilteredList<>(transactionList, t -> true);
 
@@ -48,7 +53,7 @@ public class WorkspaceModel implements Model {
 
   @Override
   public void updateTransientProperties() {
-    categoryList.forEach(CategoryModel::updateTransientProperties);
+    categoryMap.values().forEach(CategoryModel::updateTransientProperties);
     transactionList.forEach(this::updateTransientProperties);
   }
 
@@ -58,12 +63,25 @@ public class WorkspaceModel implements Model {
   }
 
   private CategoryModel selectFirstMatchingCategory(TransactionModel transactionModel) {
-    for (CategoryModel categoryModel : categoryList) {
+    for (CategoryModel categoryModel : categoryMap.values()) {
       if (categoryModel.getFilterPredicate().test(transactionModel)) {
         return categoryModel;
       }
     }
 
     return null;
+  }
+
+  public void assignCategoryIcon(CategoryIcon icon, String filterExpression) {
+    var categoryModel = getCategoryMap().get(icon);
+    if (getCategoryMap().containsKey(icon)) {
+      categoryModel.appendFilterExpression(filterExpression);
+    } else {
+      categoryModel = new CategoryModel();
+      categoryModel.setCategoryIcon(icon);
+      categoryModel.setFilterExpression(filterExpression);
+      getCategoryMap().put(icon, categoryModel);
+    }
+    updateTransientProperties();
   }
 }

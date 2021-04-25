@@ -8,10 +8,11 @@ import com.gluonhq.charm.glisten.visual.GlistenStyleClasses;
 import de.fxnn.geld.application.model.WorkspaceModel;
 import de.fxnn.geld.category.model.CategoryModel;
 import de.fxnn.geld.category.view.CreateCategoryView;
+import de.fxnn.geld.io.ikonli.CategoryIcon;
 import de.fxnn.geld.transaction.model.FilterParser;
 import de.fxnn.geld.transaction.model.TransactionModel;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener.Change;
+import javafx.collections.MapChangeListener.Change;
 import javafx.scene.Node;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
@@ -63,23 +64,24 @@ public class TransactionFilterBox extends HBox {
 
     filterButton.getItems().add(categoryAddMenuItem);
     filterButton.getItems().add(noCategoryFilterMenuItem);
-    model.getCategoryList().forEach(category -> addCategoryMenuItem(category, filterButton));
+    model
+        .getCategoryMap()
+        .values()
+        .forEach(category -> addCategoryMenuItem(category, filterButton));
 
     model
-        .getCategoryList()
+        .getCategoryMap()
         .addListener(
-            (Change<? extends CategoryModel> change) ->
+            (Change<? extends CategoryIcon, ? extends CategoryModel> change) ->
                 onCategoryListChanged(change, filterButton));
 
     return filterButton;
   }
 
   private void onCategoryListChanged(
-      Change<? extends CategoryModel> change, MenuButton filterButton) {
-    while (change.next()) {
-      if (change.wasAdded()) {
-        change.getAddedSubList().forEach(category -> addCategoryMenuItem(category, filterButton));
-      }
+      Change<? extends CategoryIcon, ? extends CategoryModel> change, MenuButton filterButton) {
+    if (change.wasAdded()) {
+      addCategoryMenuItem(change.getValueAdded(), filterButton);
     }
   }
 

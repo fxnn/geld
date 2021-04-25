@@ -32,7 +32,7 @@ class ExternalWorkspaceMapperTest {
     internalTransaction.setDate(LocalDate.of(1999, 12, 31));
 
     var internalWorkspace = new WorkspaceModel();
-    internalWorkspace.getCategoryList().add(internalCategory);
+    internalWorkspace.getCategoryMap().put(internalCategory.getCategoryIcon(), internalCategory);
     internalWorkspace.getTransactionList().add(internalTransaction);
 
     var externalWorkspace = ExternalWorkspaceMapper.create().toExternal(internalWorkspace);
@@ -73,8 +73,8 @@ class ExternalWorkspaceMapperTest {
     var internalWorkspace = ExternalWorkspaceMapper.create().toInternal(externalWorkspace);
     assertNotNull(internalWorkspace);
 
-    assertThat(internalWorkspace.getCategoryList(), hasSize(1));
-    var internalCategory = internalWorkspace.getCategoryList().get(0);
+    assertThat(internalWorkspace.getCategoryMap().values(), hasSize(1));
+    var internalCategory = internalWorkspace.getCategoryMap().values().iterator().next();
 
     assertEquals(CategoryIcon.CAR, internalCategory.getCategoryIcon());
     assertEquals("filter", internalCategory.getFilterExpression());

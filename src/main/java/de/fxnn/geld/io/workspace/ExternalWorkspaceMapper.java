@@ -1,6 +1,7 @@
 package de.fxnn.geld.io.workspace;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 import de.fxnn.geld.application.model.WorkspaceModel;
 import de.fxnn.geld.category.model.CategoryModel;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -17,6 +19,7 @@ import org.mapstruct.factory.Mappers;
 @Mapper(imports = {FXCollections.class, Collectors.class, CategoryIcon.class})
 public interface ExternalWorkspaceMapper {
 
+  @Mapping(target = "categoryList", source = "categoryMap")
   ExternalWorkspace toExternal(WorkspaceModel internal);
 
   default WorkspaceModel toInternal(ExternalWorkspace external) {
@@ -26,6 +29,7 @@ public interface ExternalWorkspaceMapper {
   }
 
   @Mapping(target = "filteredTransactionList", ignore = true)
+  @Mapping(target = "categoryMap", source = "categoryList")
   WorkspaceModel toInternalWithoutTransientProperties(ExternalWorkspace external);
 
   default ObservableList<TransactionModel> toObservableTransactionList(
@@ -43,12 +47,22 @@ public interface ExternalWorkspaceMapper {
   @Mapping(target = "lowercaseWords", ignore = true)
   TransactionModel toInternalWithoutTransientProperties(ExternalTransaction external);
 
-  default ObservableList<CategoryModel> toObservableCategoryList(List<ExternalCategory> external) {
-    if (external == null) {
-      return FXCollections.observableArrayList();
+  default ObservableMap<CategoryIcon, CategoryModel> toObservableCategoryList(
+      List<ExternalCategory> external) {
+    var result = FXCollections.<CategoryIcon, CategoryModel>observableHashMap();
+
+    if (external != null) {
+      external.stream()
+          .map(this::toInternal)
+          .forEach(internal -> result.put(internal.getCategoryIcon(), internal));
     }
-    return FXCollections.observableArrayList(
-        external.stream().map(this::toInternal).collect(toList()));
+
+    return result;
+  }
+
+  default List<ExternalCategory> toExternal(
+      ObservableMap<CategoryIcon, CategoryModel> internalMap) {
+    return internalMap.values().stream().map(this::toExternal).collect(toUnmodifiableList());
   }
 
   @Mapping(target = "categoryIconName", expression = "java(internal.getCategoryIcon().name())")

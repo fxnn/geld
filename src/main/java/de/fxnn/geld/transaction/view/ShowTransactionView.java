@@ -27,7 +27,7 @@ public class ShowTransactionView extends View {
     var workspaceSaveAction = new WorkspaceSaveAction(model, applicationMetadata);
     var transactionLoadAction = new TransactionLoadAction(this, model, workspaceSaveAction);
     model
-        .getCategoryList()
+        .getCategoryMap()
         .addListener((InvalidationListener) ignored -> Platform.runLater(workspaceSaveAction));
 
     transactionLoadButton = new Button();
