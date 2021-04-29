@@ -3,12 +3,7 @@ package de.fxnn.geld.application.model;
 import de.fxnn.geld.category.model.CategoryModel;
 import de.fxnn.geld.common.model.Model;
 import de.fxnn.geld.io.ikonli.CategoryIcon;
-import de.fxnn.geld.io.mt940.Mt940Loader;
 import de.fxnn.geld.transaction.model.TransactionModel;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -38,18 +33,6 @@ public class WorkspaceModel implements Model {
   /** The transaction list, filtered through the {@link #filterExpression}. A transient property. */
   private final FilteredList<TransactionModel> filteredTransactionList =
       new FilteredList<>(transactionList, t -> true);
-
-  public int loadTransactionList(File file) throws IOException {
-    var models =
-        new Mt940Loader()
-            .loadTransactionModels(file)
-            .map(TransactionModel::fromMt940Message)
-            .flatMap(ArrayList::stream)
-            .collect(Collectors.toList());
-    transactionList.clear();
-    transactionList.addAll(models);
-    return models.size();
-  }
 
   @Override
   public void updateTransientProperties() {
