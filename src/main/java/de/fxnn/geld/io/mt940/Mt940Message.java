@@ -30,6 +30,13 @@ public class Mt940Message {
 
   @Value
   public static class Transaction {
+
+    /**
+     * Serial number of the transaction within the imported file. Used to preserve the ordering
+     * within items in the same file.
+     */
+    long serialTransactionImportNumber;
+
     List<Mt940Field> fields = new ArrayList<>();
 
     public Mt940TransactionField getTransactionField() {

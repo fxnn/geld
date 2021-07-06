@@ -9,6 +9,10 @@ import javafx.scene.control.Alert.AlertType;
 
 public class AlertFactory {
 
+  public Alert createInformation(String message) {
+    return new Alert(AlertType.INFORMATION, message);
+  }
+
   public Alert createError(String message, Throwable throwable) {
     return new Alert(AlertType.ERROR, message + createThrowableMessage(throwable));
   }

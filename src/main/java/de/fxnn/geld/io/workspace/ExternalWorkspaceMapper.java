@@ -44,7 +44,6 @@ public interface ExternalWorkspaceMapper {
     return result;
   }
 
-  @Mapping(target = "lowercaseWords", ignore = true)
   TransactionModel toInternalWithoutTransientProperties(ExternalTransaction external);
 
   default ObservableMap<CategoryIcon, CategoryModel> toObservableCategoryList(

@@ -8,28 +8,65 @@ import de.fxnn.geld.io.mt940.Mt940Message.Transaction;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.unicons.UniconsLine;
 
 @Data
-public class TransactionModel implements Model {
+@Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class TransactionModel implements Model, Comparable<TransactionModel> {
 
   public static final Ikon NO_CATEGORY_IKON = UniconsLine.QUESTION_CIRCLE;
+  /**
+   * This comparator is used to sort all known transactions in the {@code WorkspaceModel}. It must
+   * thus provide a total ordering of transactions, even for transactions from different files.
+   */
+  public static final Comparator<TransactionModel> COMPARATOR =
+      Comparator.comparing(TransactionModel::getDate)
+          .thenComparing(TransactionModel::getSerialTransactionImportNumber);
 
+  @EqualsAndHashCode.Include private BigDecimal amount;
+  @EqualsAndHashCode.Include private String transactionDescription;
+  @EqualsAndHashCode.Include private String referenceText;
+  @EqualsAndHashCode.Include private String beneficiary;
+  @EqualsAndHashCode.Include private LocalDate date;
+
+  /**
+   * HINT: Not included in {@link EqualsAndHashCode}, as this is purely informational and thus low
+   * priority. As there's always the risk that information on the same transaction differs in two
+   * different files, it's safer to only use important fields.
+   */
   private BigDecimal balanceBefore;
-  private BigDecimal amount;
+
+  /**
+   * HINT: Not included in {@link EqualsAndHashCode}, as this is purely informational and thus low
+   * priority. As there's always the risk that information on the same transaction differs in two
+   * different files, it's safer to only use important fields.
+   */
   private BigDecimal balanceAfter;
-  private String transactionDescription;
-  private String referenceText;
-  private String beneficiary;
-  private LocalDate date;
+
+  /**
+   * Serial number of the transaction within the file it was imported from.
+   *
+   * <p>We don't include this in {@link EqualsAndHashCode}. Reason: when one transaction is included
+   * in multiple files, they might have a different total number of transactions and thus different
+   * serial numbers. Therefore it's unreliable for equality.
+   */
+  private long serialTransactionImportNumber;
 
   /**
    * Transient property containing all words in all other textual properties. Used for full-text
@@ -81,6 +118,7 @@ public class TransactionModel implements Model {
       var txField = tx.getTransactionField();
 
       var txView = new TransactionModel();
+      txView.setSerialTransactionImportNumber(tx.getSerialTransactionImportNumber());
       txView.setBalanceBefore(balanceBefore);
       txView.setAmount(txField.getAmountAsBigDecimal());
       txView.setTransactionDescription(infoField.getTransactionDescription());
@@ -106,5 +144,10 @@ public class TransactionModel implements Model {
 
   public Optional<CategoryModel> getOptionalCategoryModel() {
     return Optional.ofNullable(getCategoryModel());
+  }
+
+  @Override
+  public int compareTo(TransactionModel o) {
+    return COMPARATOR.compare(this, o);
   }
 }

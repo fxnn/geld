@@ -35,6 +35,7 @@ class ExternalWorkspaceIoTest {
     var category = new ExternalCategory("ICON", "filter");
     var transaction =
         new ExternalTransaction(
+            42L,
             new BigDecimal("1.11"),
             new BigDecimal("5.55"),
             new BigDecimal("9.99"),
@@ -53,6 +54,7 @@ class ExternalWorkspaceIoTest {
             + "\"filterExpression\":\"filter\""
             + "}],"
             + "\"transactionList\":[{"
+            + "\"serialTransactionImportNumber\":42,"
             + "\"balanceBefore\":1.11,"
             + "\"amount\":5.55,"
             + "\"balanceAfter\":9.99,"
@@ -73,6 +75,7 @@ class ExternalWorkspaceIoTest {
                 + "\"filterExpression\":\"filter\""
                 + "}],"
                 + "\"transactionList\": [{"
+                + "\"serialTransactionImportNumber\":42,"
                 + "\"balanceBefore\": \"1.11\","
                 + "\"amount\": \"5.55\","
                 + "\"balanceAfter\": \"9.99\","
@@ -93,6 +96,7 @@ class ExternalWorkspaceIoTest {
 
     assertThat(workspace.getTransactionList(), hasSize(1));
     var transaction = workspace.getTransactionList().get(0);
+    assertEquals(42L, transaction.getSerialTransactionImportNumber());
     assertEquals(new BigDecimal("1.11"), transaction.getBalanceBefore());
     assertEquals(new BigDecimal("5.55"), transaction.getAmount());
     assertEquals(new BigDecimal("9.99"), transaction.getBalanceAfter());

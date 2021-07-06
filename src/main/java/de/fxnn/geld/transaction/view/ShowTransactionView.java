@@ -10,6 +10,7 @@ import de.fxnn.geld.application.model.WorkspaceModel;
 import de.fxnn.geld.application.platform.ApplicationMetadata;
 import de.fxnn.geld.application.view.WorkspaceSaveAction;
 import de.fxnn.geld.common.view.FloatingViewSwitchButton;
+import de.fxnn.geld.transaction.core.TransactionImporter;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.scene.control.Button;
@@ -25,7 +26,9 @@ public class ShowTransactionView extends View {
 
   public ShowTransactionView(WorkspaceModel model, ApplicationMetadata applicationMetadata) {
     var workspaceSaveAction = new WorkspaceSaveAction(model, applicationMetadata);
-    var transactionLoadAction = new TransactionLoadAction(this, model, workspaceSaveAction);
+    var transactionImporter = new TransactionImporter(model);
+    var transactionLoadAction =
+        new TransactionLoadAction(this, transactionImporter, workspaceSaveAction);
     model
         .getCategoryMap()
         .addListener((InvalidationListener) ignored -> Platform.runLater(workspaceSaveAction));

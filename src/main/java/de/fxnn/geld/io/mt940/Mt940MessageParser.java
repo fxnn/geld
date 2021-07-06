@@ -9,6 +9,7 @@ public class Mt940MessageParser {
 
   private final PushbackReader reader;
   private final Mt940FieldParser fieldParser;
+  private long serialTransactionImportNumber = 0L;
 
   public Mt940MessageParser(Reader reader) {
     this.reader = new PushbackReader(reader);
@@ -36,7 +37,7 @@ public class Mt940MessageParser {
         message.getHeaderFields().add(field);
       }
       if (field.isTransactionBegin()) {
-        transaction = new Transaction();
+        transaction = new Transaction(serialTransactionImportNumber++);
         message.getTransactions().add(transaction);
       }
       if (field.isTransactionalField()) {

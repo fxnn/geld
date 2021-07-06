@@ -9,6 +9,7 @@ import lombok.Value;
 @CompiledJson
 public class ExternalTransaction {
 
+  Long serialTransactionImportNumber;
   BigDecimal balanceBefore;
   BigDecimal amount;
   BigDecimal balanceAfter;

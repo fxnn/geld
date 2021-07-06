@@ -23,6 +23,7 @@ class ExternalWorkspaceMapperTest {
     internalCategory.setCategoryIcon(CategoryIcon.CAR);
 
     var internalTransaction = new TransactionModel();
+    internalTransaction.setSerialTransactionImportNumber(42L);
     internalTransaction.setBalanceBefore(new BigDecimal("1.11"));
     internalTransaction.setAmount(new BigDecimal("5.55"));
     internalTransaction.setBalanceAfter(new BigDecimal("9.99"));
@@ -46,6 +47,7 @@ class ExternalWorkspaceMapperTest {
     assertThat(externalWorkspace.getTransactionList(), hasSize(1));
     var externalTransaction = externalWorkspace.getTransactionList().get(0);
 
+    assertEquals(42L, externalTransaction.getSerialTransactionImportNumber());
     assertEquals(new BigDecimal("1.11"), externalTransaction.getBalanceBefore());
     assertEquals(new BigDecimal("5.55"), externalTransaction.getAmount());
     assertEquals(new BigDecimal("9.99"), externalTransaction.getBalanceAfter());
@@ -60,6 +62,7 @@ class ExternalWorkspaceMapperTest {
     var externalCategory = new ExternalCategory(CategoryIcon.CAR.name(), "filter");
     var externalTransaction =
         new ExternalTransaction(
+            42L,
             new BigDecimal("1.11"),
             new BigDecimal("5.55"),
             new BigDecimal("9.99"),
@@ -82,6 +85,7 @@ class ExternalWorkspaceMapperTest {
     assertThat(internalWorkspace.getTransactionList(), hasSize(1));
     var internalTransaction = internalWorkspace.getTransactionList().get(0);
 
+    assertEquals(42L, internalTransaction.getSerialTransactionImportNumber());
     assertEquals(new BigDecimal("1.11"), internalTransaction.getBalanceBefore());
     assertEquals(new BigDecimal("5.55"), internalTransaction.getAmount());
     assertEquals(new BigDecimal("9.99"), internalTransaction.getBalanceAfter());
