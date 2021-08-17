@@ -2,6 +2,7 @@ package de.fxnn.geld.io.mt940;
 
 import java.io.IOException;
 import java.io.PushbackReader;
+import java.io.Reader;
 import java.io.StringReader;
 
 public class Mt940FieldParser {
@@ -9,8 +10,12 @@ public class Mt940FieldParser {
   private final Mt940RawFieldParser inputParser;
   private Mt940RawFieldParser textBlockParser;
 
-  public Mt940FieldParser(PushbackReader reader) {
+  public Mt940FieldParser(Reader reader) {
     this.inputParser = new Mt940RawFieldParser(reader);
+  }
+
+  public PushbackReader getPushbackReader() {
+    return this.inputParser.getPushbackReader();
   }
 
   public boolean hasNext() throws IOException {
@@ -36,8 +41,7 @@ public class Mt940FieldParser {
       if (textBlockParser != null) {
         throw new IllegalStateException("No nested text blocks allowed");
       }
-      textBlockParser =
-          new Mt940RawFieldParser(new PushbackReader(new StringReader(rawField.getRawContent())));
+      textBlockParser = new Mt940RawFieldParser(new StringReader(rawField.getRawContent()));
       return next();
     }
 

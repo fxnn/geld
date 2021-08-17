@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
-import java.io.PushbackReader;
 import java.io.StringReader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -111,7 +110,73 @@ class Mt940RawFieldParserTest {
     assertFalse(sut.hasNext());
   }
 
+  @Test
+  void parse__exampleSwiftMt940Sparkasse2() throws IOException {
+    var mt940Case = Mt940Case.load("exampleSwiftMt940Sparkasse2");
+    var sut = createSut(mt940Case);
+
+    assertThat(sut.next().getTag(), is("20"));
+    assertThat(sut.next().getTag(), is("25"));
+    assertThat(sut.next().getTag(), is("28C"));
+    assertThat(sut.next().getTag(), is("60F"));
+    assertThat(sut.next().getTag(), is("61"));
+
+    // NOTE, that the following field is encoded with a line starting with '-', which was handled
+    //   erroneously in a previous version
+    assertTrue(sut.hasNext());
+    var field = sut.next();
+    assertThat(field.getTag(), is("86"));
+    assertThat(
+        field.getRawContent(),
+        is(
+            "166"
+                + "?00GUTSCHR. UEBERWEISUNG"
+                + "?101234"
+                + "?20EREF+ABC12345678DEFGH PP.00"
+                + "?2100.PP PAYPAL"
+                + "?22SVWZ+PP.0000.PP ABBUCHUNG V"
+                + "?23OM PAYPAL-KONTO"
+                + "?24AWV-MELDEPFLICHT BEACHTEN"
+                + "?25HOTLINE BUNDESBANK."
+                + "?26(0800) 1234-111"
+                + "?30ABCDEFGH"
+                + "?31123456789012345678901234567"
+                + "?32PAYPAL EUROPE SARL ET CIE S"
+                + "?33CA"
+                + "?34888"));
+
+    assertTrue(sut.hasNext());
+    field = sut.next();
+    assertThat(field.getTag(), is("61"));
+    assertThat(field.getRawContent(), is("1911051105DR1,23N037NONREF"));
+
+    assertTrue(sut.hasNext());
+    field = sut.next();
+    assertThat(field.getTag(), is("86"));
+    assertThat(
+        field.getRawContent(),
+        is(
+            "106"
+                + "?00KARTENZAHLUNG"
+                + "?101234"
+                + "?20SVWZ+2019-11-04T12.00 Debit"
+                + "?21k.1 2019-12"
+                + "?22ABWA+REWE SAGT DANKE. 12345"
+                + "?23678//Berlin Friedenau/DE"
+                + "?30ABCDEFGHIJK"
+                + "?311234567890123456789012"
+                + "?32REWE Markt GmbH"
+                + "?34123"));
+
+    assertTrue(sut.hasNext());
+    field = sut.next();
+    assertThat(field.getTag(), is("62F"));
+    assertThat(field.getRawContent(), is("C191105EUR123,45"));
+
+    assertFalse(sut.hasNext());
+  }
+
   private Mt940RawFieldParser createSut(Mt940Case mt940Case) {
-    return new Mt940RawFieldParser(new PushbackReader(new StringReader(mt940Case.getData())));
+    return new Mt940RawFieldParser(new StringReader(mt940Case.getData()));
   }
 }

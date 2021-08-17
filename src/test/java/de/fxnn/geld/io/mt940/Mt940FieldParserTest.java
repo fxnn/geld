@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.fxnn.geld.io.mt940.Mt940TransactionField.FundsCode;
 import java.io.IOException;
-import java.io.PushbackReader;
 import java.io.StringReader;
 import java.time.LocalDate;
 import java.util.Currency;
@@ -131,6 +130,6 @@ class Mt940FieldParserTest {
   }
 
   private Mt940FieldParser createSut(Mt940Case mt940Case) {
-    return new Mt940FieldParser(new PushbackReader(new StringReader(mt940Case.getData())));
+    return new Mt940FieldParser(new StringReader(mt940Case.getData()));
   }
 }

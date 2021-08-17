@@ -4,6 +4,7 @@ import de.fxnn.geld.io.mt940.Mt940Message.Transaction;
 import java.io.IOException;
 import java.io.PushbackReader;
 import java.io.Reader;
+import java.util.function.Predicate;
 
 public class Mt940MessageParser {
 
@@ -12,20 +13,23 @@ public class Mt940MessageParser {
   private long serialTransactionImportNumber = 0L;
 
   public Mt940MessageParser(Reader reader) {
-    this.reader = new PushbackReader(reader);
-    this.fieldParser = new Mt940FieldParser(this.reader);
+    this.fieldParser = new Mt940FieldParser(reader);
+    this.reader = fieldParser.getPushbackReader();
   }
 
   public boolean hasNext() throws IOException {
+    skipAllCharsThat(c -> c == Mt940Constants.END_OF_MESSAGE || Character.isWhitespace(c));
+    return fieldParser.hasNext();
+  }
+
+  private void skipAllCharsThat(Predicate<Integer> characterPredicate) throws IOException {
     int recentChar;
     do {
       recentChar = reader.read();
-    } while (recentChar == '-' || Character.isWhitespace(recentChar));
+    } while (characterPredicate.test(recentChar));
     if (recentChar > -1) {
       reader.unread(recentChar);
     }
-
-    return fieldParser.hasNext();
   }
 
   public Mt940Message next() throws IOException {

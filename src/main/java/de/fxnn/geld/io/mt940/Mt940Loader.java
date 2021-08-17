@@ -19,7 +19,7 @@ public class Mt940Loader {
           result.add(parser.next());
         }
       } catch (Exception e) {
-        throw new IOException("error at line %d" + reader.getLineNumber(), e);
+        throw new IOException("error at line " + reader.getLineNumber(), e);
       }
     } catch (IOException e) {
       throw new IOException("could not read the file '" + path + "'", e);

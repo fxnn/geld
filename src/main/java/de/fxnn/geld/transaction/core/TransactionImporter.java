@@ -13,23 +13,37 @@ public class TransactionImporter {
 
   private final WorkspaceModel model;
 
-  public void importTransactions(Collection<TransactionModel> newTransactions) {
+  public TransactionImportReport importTransactions(Collection<TransactionModel> newTransactions) {
+    int beforeTotalTransactionCount = model.getTransactionList().size();
+    int loadedTransactionCount = newTransactions.size();
     Map<TransactionModel, Integer> transactionIndexMap = mapByIndex(model.getTransactionList());
 
+    int newTransactionCount = 0;
+    int updatedTransactionCount = 0;
     for (TransactionModel transaction : newTransactions) {
       Integer index = transactionIndexMap.get(transaction);
       if (index == null) {
         model.getTransactionList().add(transaction);
+        newTransactionCount++;
       } else {
         // NOTE: equality of transactions is not defined on all their fields, so
         //   replacing after equality check does make sense, as it might update some
         //   of the fields.
         model.getTransactionList().set(index, transaction);
+        updatedTransactionCount++;
       }
     }
 
     model.getTransactionList().sort(TransactionModel.COMPARATOR);
     model.updateTransientProperties();
+
+    int afterTotalTransactionCount = model.getTransactionList().size();
+    return new TransactionImportReport(
+        loadedTransactionCount,
+        newTransactionCount,
+        updatedTransactionCount,
+        beforeTotalTransactionCount,
+        afterTotalTransactionCount);
   }
 
   private Map<TransactionModel, Integer> mapByIndex(List<TransactionModel> transactionList) {

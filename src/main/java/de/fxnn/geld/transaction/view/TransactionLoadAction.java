@@ -39,10 +39,22 @@ public class TransactionLoadAction implements EventHandler<ActionEvent> {
   private void loadTransactions(Path path) {
     try {
       var newTransactions = loadMt940Transactions(path);
-      importer.importTransactions(newTransactions);
+      var report = importer.importTransactions(newTransactions);
+      log.info(
+          "Imported transactions. totalBefore={} totalAfter={} loaded={} new={} updated={}",
+          report.getBeforeTotalTransactions(),
+          report.getAfterTotalTransactions(),
+          report.getLoadedTransactions(),
+          report.getNewTransactions(),
+          report.getUpdatedTransactions());
       alertFactory
           .createInformation(
-              i18n().formatMessage("transaction.load.success", newTransactions.size()))
+              i18n()
+                  .formatMessage(
+                      "transaction.load.success",
+                      report.getLoadedTransactions(),
+                      report.getNewTransactions(),
+                      report.getAfterTotalTransactions()))
           .showAndWait();
       Platform.runLater(workspaceSaveAction);
     } catch (IOException ex) {

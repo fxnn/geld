@@ -2,31 +2,61 @@ package de.fxnn.geld.io.mt940;
 
 import java.io.IOException;
 import java.io.PushbackReader;
+import java.io.Reader;
 import java.nio.CharBuffer;
+import lombok.extern.slf4j.Slf4j;
 
 /** Consumes raw MT940 character data and parses it into {@link Mt940RawField} instances. */
+@Slf4j
 public class Mt940RawFieldParser {
 
-  private static final int BUFFER_SIZE = 10240;
-  private static final char END_OF_MESSAGE = '-';
-  private static final char LINE_BREAK = '\n';
-  private static final char TAG_SEPARATOR = ':';
-  private static final char BEGIN_OF_BLOCK = '{';
-  private static final char END_OF_BLOCK = '}';
+  /** How many characters the current code wants to look ahead. */
+  private static final int LOOKAHEAD_BUFFER_SIZE = 2;
 
   private final PushbackReader reader;
+  /** Buffer used to read fields and blocks. */
   private final CharBuffer buf;
 
-  public Mt940RawFieldParser(PushbackReader reader) {
-    this.reader = reader;
-    this.buf = CharBuffer.allocate(BUFFER_SIZE);
+  private final int[] lookaheadBuffer = new int[LOOKAHEAD_BUFFER_SIZE];
+  /**
+   * Number of characters we currently looked ahead and probably want to {@link
+   * PushbackReader#unread(int)} again.
+   */
+  private int currentLookaheadCount = 0;
+
+  public Mt940RawFieldParser(Reader reader) {
+    this.reader = new PushbackReader(reader, LOOKAHEAD_BUFFER_SIZE);
+    this.buf = CharBuffer.allocate(Mt940Constants.BUFFER_SIZE);
+  }
+
+  public PushbackReader getPushbackReader() {
+    return reader;
   }
 
   public boolean hasNext() throws IOException {
-    var nextChar = reader.read();
-    reader.unread(nextChar);
+    var nextChar = lookOneCharacterAhead();
+    unreadAllLookaheadCharacters();
     // HINT (\n): ignores line endings on EOF, but effectively also quits on every empty line
-    return nextChar >= 0 && nextChar != END_OF_MESSAGE && nextChar != LINE_BREAK;
+    return nextChar >= 0
+        && nextChar != Mt940Constants.END_OF_MESSAGE
+        && nextChar != Mt940Constants.LINE_BREAK;
+  }
+
+  private int lookOneCharacterAhead() throws IOException {
+    int bufferIdx = currentLookaheadCount;
+    lookaheadBuffer[bufferIdx] = reader.read();
+    if (lookaheadBuffer[bufferIdx] > -1) {
+      currentLookaheadCount++;
+    }
+
+    return lookaheadBuffer[bufferIdx];
+  }
+
+  private void unreadAllLookaheadCharacters() throws IOException {
+    while (currentLookaheadCount > 0) {
+      currentLookaheadCount--;
+      reader.unread(lookaheadBuffer[currentLookaheadCount]);
+    }
   }
 
   public Mt940RawField next() throws IOException {
@@ -34,7 +64,7 @@ public class Mt940RawFieldParser {
     // HINT: should either be '{' or ':'
 
     buf.clear();
-    String tag = bufferUntil(TAG_SEPARATOR).flip().toString();
+    String tag = bufferUntil(Mt940Constants.TAG_SEPARATOR).flip().toString();
     buf.clear();
     String content = bufferUntilEndOfField(firstChar).flip().toString().trim();
 
@@ -42,20 +72,30 @@ public class Mt940RawFieldParser {
   }
 
   private CharBuffer bufferUntilEndOfField(int firstChar) throws IOException {
-    if (firstChar == BEGIN_OF_BLOCK) {
-      bufferUntil(Mt940RawFieldParser.END_OF_BLOCK);
+    if (firstChar == Mt940Constants.BEGIN_OF_BLOCK) {
+      bufferUntil(Mt940Constants.END_OF_BLOCK);
       return buf;
     }
 
     while (true) {
-      bufferUntil(LINE_BREAK);
-      int nextChar = reader.read();
-      if (nextChar < 0) {
-        return buf;
-      }
-      reader.unread(nextChar);
-      if (nextChar == TAG_SEPARATOR || nextChar == END_OF_MESSAGE) {
-        return buf;
+      bufferUntil(Mt940Constants.LINE_BREAK);
+      try {
+        int nextChar = lookOneCharacterAhead();
+        if (nextChar < 0 || nextChar == Mt940Constants.TAG_SEPARATOR) {
+          return buf;
+        }
+        if (nextChar == Mt940Constants.END_OF_MESSAGE) {
+          nextChar = lookOneCharacterAhead();
+          if (nextChar < 0 || nextChar == Mt940Constants.LINE_BREAK) {
+            return buf;
+          }
+        }
+      } finally {
+        try {
+          unreadAllLookaheadCharacters();
+        } catch (Exception ex) {
+          log.info("Failed to unread all lookahead characters", ex);
+        }
       }
     }
   }
